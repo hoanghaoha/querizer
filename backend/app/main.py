@@ -13,10 +13,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user.routers, prefix="/user", tags=["user"])
-app.include_router(database.routers, prefix="/database", tags=["database"])
-app.include_router(challenge.routers, prefix="/challenge", tags=["challenge"])
-app.include_router(score.routers, prefix="/score", tags=["score"])
+app.include_router(user.router, prefix="/user", tags=["user"])
+app.include_router(database.router, prefix="/database", tags=["database"])
+app.include_router(challenge.router, prefix="/challenge", tags=["challenge"])
+app.include_router(score.router, prefix="/score", tags=["score"])
 
 
 @app.get("/status")
