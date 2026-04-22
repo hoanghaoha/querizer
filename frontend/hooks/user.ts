@@ -1,0 +1,50 @@
+import { api } from "@/lib/api"
+import { supabase } from "@/lib/supabase"
+import { User } from "@/lib/types"
+import { useCallback, useEffect, useState } from "react"
+import type { User as AuthUser } from '@supabase/supabase-js'
+
+export function useAuth() {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null)
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setAuthUser(user)
+    }
+    load()
+  }, [])
+
+  return authUser
+}
+
+export function useUser() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const authUser = useAuth()
+
+
+  const load = useCallback(async () => {
+    if (!authUser) return
+    setLoading(true)
+
+    try {
+      const user: User = await api("/user", {
+        method: "POST",
+        body: JSON.stringify({
+          email: authUser.email,
+          name: authUser.user_metadata.name,
+          avatar_url: authUser.user_metadata.avatar_url
+        })
+      })
+      setUser(user)
+    } finally {
+      setLoading(false)
+    }
+  }, [authUser])
+
+  useEffect(() => { load() }, [load])
+
+  return { user, refresh: load, loading }
+
+}
