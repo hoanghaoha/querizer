@@ -1,0 +1,24 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
+from app.routers import user, database, challenge, score
+
+app = FastAPI(title="Querizer Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", settings.app_url],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(user.routers, prefix="/user", tags=["user"])
+app.include_router(database.routers, prefix="/database", tags=["database"])
+app.include_router(challenge.routers, prefix="/challenge", tags=["challenge"])
+app.include_router(score.routers, prefix="/score", tags=["score"])
+
+
+@app.get("/status")
+async def status_endpoint():
+    return {"status": "ok"}

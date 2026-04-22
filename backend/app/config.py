@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     supabase_key: str = ""
     anthropic_key: str = ""
     databases_path: str = ""
+    app_url: str = ""
 
     class Config:
         env_file = ".env"
