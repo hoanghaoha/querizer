@@ -9,29 +9,30 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import { IconInnerShadowTop } from "@tabler/icons-react"
 import { navData } from "@/lib/const"
-import { NavGroup } from "../nav-group"
+import { NavGroup } from "./nav-group"
+import Image from "next/image"
+import Link from "next/link"
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { open } = useSidebar()
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <a href="#">
-                <IconInnerShadowTop className="size-5!" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
-            </SidebarMenuButton>
+          <SidebarMenuItem className="flex justify-between items-center">
+            {
+              open &&
+              <Link className="flex items-center gap-2 px-2" href="/">
+                <Image src={"/icon.svg"} alt="Querizer" width={28} height={28} className="hover:animate-pulse hover" />
+              </Link>
+            }
+            <SidebarTrigger size={"lg"} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -42,6 +43,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
-    </Sidebar>
+    </Sidebar >
   )
 }

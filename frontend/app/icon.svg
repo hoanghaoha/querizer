@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="#064E3B"/>
+  <!-- Q ring -->
+  <circle cx="30" cy="28" r="16" fill="none" stroke="#34D399" stroke-width="6"/>
+  <!-- Q tail -->
+  <line x1="42" y1="40" x2="54" y2="55" stroke="#34D399" stroke-width="6" stroke-linecap="round"/>
+  <!-- Cursor block inside Q -->
+  <rect x="23" y="21" width="7" height="13" rx="1.5" fill="#34D399"/>
+  <!-- Faint next-char hint -->
+  <rect x="33" y="21" width="10" height="5" rx="1.5" fill="#34D399" opacity="0.3"/>
+</svg>
