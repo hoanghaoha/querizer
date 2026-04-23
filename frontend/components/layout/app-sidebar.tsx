@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/sidebar"
 import { navData } from "@/lib/const"
 import { NavGroup } from "./nav-group"
-import Image from "next/image"
 import Link from "next/link"
 
 
@@ -28,8 +27,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem className="flex justify-between items-center">
             {
               open &&
-              <Link className="flex items-center gap-2 px-2" href="/">
-                <Image src={"/icon.svg"} alt="Querizer" width={28} height={28} className="hover:animate-pulse hover" />
+              <Link className="px-2" href="/">
+                <p className="text-lg font-bold">Querizer</p>
               </Link>
             }
             <SidebarTrigger size={"lg"} />

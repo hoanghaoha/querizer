@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { type Icon } from "@tabler/icons-react"
+import { useRouter } from "next/navigation"
 
 export function NavGroup({
   label,
@@ -21,6 +22,8 @@ export function NavGroup({
     icon: Icon
   }[]
 }) {
+  const router = useRouter()
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
@@ -28,7 +31,7 @@ export function NavGroup({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuButton tooltip={item.title} onClick={() => router.push(item.url)}>
                 <item.icon />
                 <span>{item.title}</span>
               </SidebarMenuButton>

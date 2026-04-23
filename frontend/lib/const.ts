@@ -1,33 +1,54 @@
-import { IconDashboard, IconDatabase, IconShare, IconSword, IconTreadmill } from "@tabler/icons-react";
+import { IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconHeartbeat, IconPlane, IconSchool, IconShare, IconShoppingCart, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck } from "@tabler/icons-react";
 
 export const navData = {
   workspace: [
     {
       title: "Dashboard",
-      url: "#dashboard",
+      url: "/dashboard",
       icon: IconDashboard
     },
     {
       title: "Databases",
-      url: "#databases",
+      url: "/databases",
       icon: IconDatabase
     },
     {
       title: "Challenges",
-      url: "#challenges",
+      url: "/challenges",
       icon: IconTreadmill
     },
   ],
   community: [
     {
       title: "Leaderboard",
-      url: "#leaderboard",
+      url: "/leaderboard",
       icon: IconSword,
     },
     {
       title: "Community Challenges",
-      url: "#community-challenges",
+      url: "/community-challenges",
       icon: IconShare,
     }
   ]
 }
+
+export const DATABASE_INDUSTRY = [
+  { title: "Technology", icon: IconDeviceLaptop },    // #1 — software, SaaS, data engineering
+  { title: "Finance", icon: IconCoin },            // #2 — banking, trading, risk analysis
+  { title: "Retail", icon: IconShoppingCart },    // #3 — e-commerce, inventory, sales
+  { title: "Healthcare", icon: IconHeartbeat },       // #4 — EHR, clinical data, billing
+  { title: "Manufacturing", icon: IconBuildingFactory }, // #5 — ERP, supply chain, QA
+  { title: "Logistics", icon: IconTruck },           // #6 — fleet, warehouse, tracking
+  { title: "Government", icon: IconBuildingBank },    // #7 — public records, tax, census
+  { title: "Education", icon: IconSchool },          // #8 — LMS, student records, research
+  { title: "F&B", icon: IconToolsKitchen2 },  // #9 — POS, inventory, franchises
+  { title: "Travel", icon: IconPlane },           // #10 — booking, reservations, pricing
+  { title: "Real Estate", icon: IconBuildingSkyscraper }, // #11 — listings, CRM, transactions
+  { title: "Media", icon: IconDeviceTv },        // #12 — analytics, subscriptions, ads
+]
+
+export const DATABASE_SIZE = [
+  { title: "Small", icon: IconCircle },
+  { title: "Medium", icon: IconCircleHalf },
+  { title: "Large", icon: IconCircleFilled },
+]
