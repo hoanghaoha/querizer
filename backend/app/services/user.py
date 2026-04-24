@@ -1,21 +1,23 @@
 from app.supabase import db
-from app.schemas.user import UserPlan, UserResponse, UserSqlLevel
+from app.schemas.user import (
+    UserRequest,
+    UserResponse,
+    UserUpdateRequest,
+)
 
 
 def create_or_get_user(
     user_id: str,
-    email: str,
-    name: str | None,
-    avatar_url: str | None,
+    user_request: UserRequest,
 ) -> UserResponse:
     result = (
         db.table("users")
         .upsert(
             {
                 "id": user_id,
-                "email": email,
-                "name": name,
-                "avatar_url": avatar_url,
+                "email": user_request.email,
+                "name": user_request.name,
+                "avatar_url": user_request.avatar_url,
             }
         )
         .execute()
@@ -26,9 +28,16 @@ def create_or_get_user(
 
 def update_user(
     user_id,
-    name: str | None,
-    expertise: str | None,
-    sql_level: UserSqlLevel | None,
-    plan: UserPlan | None,
+    user_update_request: UserUpdateRequest,
 ):
-    return UserResponse.model_validate({})
+    update_data = user_update_request.model_dump(exclude_none=True)
+
+    if not update_data:
+        raise ValueError("No fields provided to update")
+
+    result = db.table("users").update(update_data).eq("id", user_id).execute()
+
+    if not result.data:
+        raise ValueError(f"User id {user_id} not found")
+
+    return UserResponse.model_validate(result.data[0])

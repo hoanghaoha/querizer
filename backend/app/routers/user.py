@@ -12,9 +12,7 @@ def user_endpoint(
 ) -> UserResponse:
     return create_or_get_user(
         user_id,
-        body.email,
-        body.name,
-        body.avatar_url,
+        body,
     )
 
 
@@ -22,4 +20,4 @@ def user_endpoint(
 def update_user_endpoint(
     body: UserUpdateRequest, user_id: str = Depends(verify_token)
 ) -> UserResponse:
-    return update_user(user_id, body.name, body.expertise, body.sql_level, body.plan)
+    return update_user(user_id, body)
