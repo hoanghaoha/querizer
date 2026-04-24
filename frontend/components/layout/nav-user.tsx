@@ -76,7 +76,7 @@ export function NavUser({ items }: { items: { title: string, url: string, icon: 
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {items.map(item => (
-                <DropdownMenuItem key={item.title}>
+                <DropdownMenuItem key={item.title} onClick={() => router.push(item.url)}>
                   <item.icon />
                   {item.title}
                 </DropdownMenuItem>

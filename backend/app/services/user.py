@@ -1,5 +1,5 @@
 from app.supabase import db
-from app.schemas.user import UserResponse
+from app.schemas.user import UserPlan, UserResponse, UserSqlLevel
 
 
 def create_or_get_user(
@@ -7,8 +7,6 @@ def create_or_get_user(
     email: str,
     name: str | None,
     avatar_url: str | None,
-    expertise: str | None,
-    sql_level: str | None,
 ) -> UserResponse:
     result = (
         db.table("users")
@@ -18,11 +16,19 @@ def create_or_get_user(
                 "email": email,
                 "name": name,
                 "avatar_url": avatar_url,
-                "expertise": expertise,
-                "sql_level": sql_level,
             }
         )
         .execute()
     )
 
-    return UserResponse(**result.data[0])
+    return UserResponse.model_validate(result.data[0])
+
+
+def update_user(
+    user_id,
+    name: str | None,
+    expertise: str | None,
+    sql_level: UserSqlLevel | None,
+    plan: UserPlan | None,
+):
+    return UserResponse.model_validate({})

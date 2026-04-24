@@ -1,3 +1,5 @@
+"use client"
+
 import { api } from "@/lib/api"
 import { supabase } from "@/lib/supabase"
 import { User } from "@/lib/types"
