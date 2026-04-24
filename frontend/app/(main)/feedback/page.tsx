@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { api } from "@/lib/api"
 import { IconLoader2 } from "@tabler/icons-react"
 import { useState } from "react"
@@ -57,7 +57,7 @@ const Page = () => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="message">Message</Label>
-                <Input
+                <Textarea
                   id="message"
                   defaultValue={msg}
                   onChange={e => setMsg(e.target.value)}
