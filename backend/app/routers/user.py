@@ -6,7 +6,7 @@ from app.services.user import create_or_get_user
 router = APIRouter()
 
 
-@router.post("/")
+@router.post("")
 def user_endpoint(
     body: UserRequest, user_id: str = Depends(verify_token)
 ) -> UserResponse:
