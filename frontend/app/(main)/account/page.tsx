@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/user"
 import { api } from "@/lib/api"
 import { IconLoader2, IconSparkles } from "@tabler/icons-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 const Page = () => {
   const { user, refresh, loading } = useUser()
@@ -27,6 +28,7 @@ const Page = () => {
       body: JSON.stringify({ name: userName, expertise: userExpertise, sql_level: userSqlLevel })
     })
     refresh()
+    toast.success("User Updated")
   }
 
   return (
@@ -61,45 +63,41 @@ const Page = () => {
             <CardTitle>Your information</CardTitle>
           </CardHeader>
           <CardContent>
-            <form id="user-form" onSubmit={e => {
+            <form className="flex flex-col gap-4" id="user-form" onSubmit={e => {
               e.preventDefault();
               handleUpdate()
             }}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    type="name"
-                    required
-                    defaultValue={user?.name}
-                    onChange={e => setUserName(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="expertise">Expertise</Label>
-                  <Input
-                    id="expertise"
-                    type="expertise"
-                    defaultValue={user?.expertise}
-                    onChange={e => setUserExpertise(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>SQL Level</Label>
-                  <Select value={userSqlLevel} onValueChange={setUserSqlLevel}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={user?.sql_level} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="Beginner">Beginner</SelectItem>
-                        <SelectItem value="Intermediate">Intermediate</SelectItem>
-                        <SelectItem value="Advanced">Advanced</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  required
+                  defaultValue={user?.name}
+                  onChange={e => setUserName(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="expertise">Expertise</Label>
+                <Input
+                  id="expertise"
+                  defaultValue={user?.expertise}
+                  onChange={e => setUserExpertise(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>SQL Level</Label>
+                <Select value={userSqlLevel} onValueChange={setUserSqlLevel}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={user?.sql_level} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="Beginner">Beginner</SelectItem>
+                      <SelectItem value="Intermediate">Intermediate</SelectItem>
+                      <SelectItem value="Advanced">Advanced</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </form>
           </CardContent>
