@@ -13,9 +13,9 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { navData } from "@/lib/const"
 import { NavGroup } from "./nav-group"
 import Link from "next/link"
+import { NAV_DATA } from "@/lib/const"
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -36,8 +36,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavGroup label="Workspace" items={navData.workspace} />
-        <NavGroup label="Community" items={navData.community} />
+        <NavGroup label="Workspace" items={NAV_DATA.workspace} />
+        <NavGroup label="Community" items={NAV_DATA.community} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

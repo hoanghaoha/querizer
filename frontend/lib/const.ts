@@ -1,6 +1,6 @@
-import { IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconHeartbeat, IconPlane, IconSchool, IconShare, IconShoppingCart, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck } from "@tabler/icons-react";
+import { IconBolt, IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconFlame, IconHeartbeat, IconLeaf, IconMoodSmile, IconPlane, IconSchool, IconShare, IconShoppingCart, IconSkull, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck } from "@tabler/icons-react";
 
-export const navData = {
+export const NAV_DATA = {
   workspace: [
     {
       title: "Dashboard",
@@ -51,4 +51,12 @@ export const DATABASE_SIZE = [
   { title: "Small", icon: IconCircle },
   { title: "Medium", icon: IconCircleHalf },
   { title: "Large", icon: IconCircleFilled },
+]
+
+export const CHALLENGE_LEVEL = [
+  { title: "Beginner", color: "text-gray-400 dark:text-gray-300", icon: IconLeaf },
+  { title: "Easy", color: "text-green-400 dark:text-green-300", icon: IconMoodSmile },
+  { title: "Medium", color: "text-yellow-400 dark:text-yellow-300", icon: IconBolt },
+  { title: "Hard", color: "text-red-400 dark:text-red-300", icon: IconFlame },
+  { title: "Hell", color: "text-violet-400 dark:text-violet-300", icon: IconSkull },
 ]

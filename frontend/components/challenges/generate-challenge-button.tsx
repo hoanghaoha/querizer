@@ -3,47 +3,43 @@ import { Button } from "../ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Field, FieldGroup } from "../ui/field"
 import { Label } from "../ui/label"
-import { Input } from "../ui/input"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
 import { Textarea } from "../ui/textarea"
-import { DATABASE_INDUSTRY, DATABASE_SIZE } from "@/lib/const"
+import { CHALLENGE_LEVEL, DATABASE_INDUSTRY, DATABASE_SIZE } from "@/lib/const"
+import { Input } from "../ui/input"
 
-const GenerateDatabaseButton = () => {
+const GenerateChallengeButton = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button>
           <IconPlus />
-          Generate Database
+          Generate Challenge
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Database
+            Challenge
           </DialogTitle>
           <DialogDescription>
-            Tell us about your database that you want.
+            Tell us about your challenge that you want.
           </DialogDescription>
         </DialogHeader>
         <FieldGroup>
           <Field>
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" name="name" placeholder="e.g. E-commerce store, Hospital records" />
-          </Field>
-          <Field>
-            <Label htmlFor="industry">Industry</Label>
+            <Label htmlFor="industry">Level</Label>
             <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select industry" />
+              <SelectTrigger>
+                <SelectValue placeholder="Select level" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Industry</SelectLabel>
-                  {DATABASE_INDUSTRY.map(industry => (
-                    <SelectItem key={industry.title} value={industry.title}>
-                      <industry.icon />
-                      {industry.title}
+                  <SelectLabel>Level</SelectLabel>
+                  {CHALLENGE_LEVEL.map(level => (
+                    <SelectItem key={level.title} value={level.title}>
+                      <level.icon className={level.color} />
+                      {level.title}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -51,23 +47,8 @@ const GenerateDatabaseButton = () => {
             </Select>
           </Field>
           <Field>
-            <Label htmlFor="size">Size</Label>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Size</SelectLabel>
-                  {DATABASE_SIZE.map(size => (
-                    <SelectItem key={size.title} value={size.title}>
-                      <size.icon />
-                      {size.title}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="topics">SQL topics</Label>
+            <Input id="topics" name="topics" placeholder="e.g. SELECT, JOINs, GROUP BY, CTEs, window functions, ..."></Input>
           </Field>
           <Field>
             <Label htmlFor="description">Additional context <span className="text-muted-foreground font-normal">(optional)</span></Label>
@@ -88,4 +69,4 @@ const GenerateDatabaseButton = () => {
   )
 }
 
-export default GenerateDatabaseButton
+export default GenerateChallengeButton
