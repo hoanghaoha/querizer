@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +15,7 @@ import {
 import { NavGroup } from "./nav-group"
 import Link from "next/link"
 import { NAV_DATA } from "@/lib/const"
+import { NavUser } from "./nav-user"
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -40,7 +40,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavGroup label="Community" items={NAV_DATA.community} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser items={NAV_DATA.user} />
       </SidebarFooter>
     </Sidebar >
   )

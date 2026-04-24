@@ -21,11 +21,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useUser } from "@/hooks/user"
-import { IconDotsVertical, IconUserCircle, IconCreditCard, IconNotification, IconLogout } from "@tabler/icons-react"
+import { signOut } from "@/lib/supabase"
+import { IconDotsVertical, IconLogout } from "@tabler/icons-react"
+import { type Icon } from "@tabler/icons-react"
+import { useRouter } from "next/navigation"
 
-export function NavUser() {
+export function NavUser({ items }: { items: { title: string, url: string, icon: Icon }[] }) {
   const { isMobile } = useSidebar()
   const { user } = useUser()
+  const router = useRouter()
 
   return (
     <SidebarMenu>
@@ -59,7 +63,7 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user?.avatar_url} alt={user?.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user?.name}</span>
@@ -71,24 +75,18 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle
-                />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard
-                />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification
-                />
-                Notifications
-              </DropdownMenuItem>
+              {items.map(item => (
+                <DropdownMenuItem key={item.title}>
+                  <item.icon />
+                  {item.title}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              signOut()
+              router.push("/")
+            }}>
               <IconLogout
               />
               Log out

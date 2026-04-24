@@ -5,6 +5,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient(supabaseUrl!, supabaseKey!);
 
+
 export async function signIn(provider: Provider) {
   await supabase.auth.signInWithOAuth({
     provider: provider,
@@ -12,4 +13,8 @@ export async function signIn(provider: Provider) {
       redirectTo: `${window.location.origin}/dashboard`
     }
   })
+}
+
+export async function signOut() {
+  await supabase.auth.signOut()
 }

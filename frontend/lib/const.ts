@@ -1,4 +1,4 @@
-import { IconBolt, IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconFlame, IconHeartbeat, IconLeaf, IconMoodSmile, IconPlane, IconSchool, IconShare, IconShoppingCart, IconSkull, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck } from "@tabler/icons-react";
+import { IconBolt, IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconFlame, IconHeartbeat, IconLeaf, IconMoodSmile, IconPlane, IconSchool, IconSend2, IconShare, IconShoppingCart, IconSkull, IconSparkles2, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck, IconUserCircle } from "@tabler/icons-react";
 
 export const NAV_DATA = {
   workspace: [
@@ -29,7 +29,25 @@ export const NAV_DATA = {
       url: "/community-challenges",
       icon: IconShare,
     }
+  ],
+  user: [
+    {
+      title: "Account",
+      url: "/account",
+      icon: IconUserCircle,
+    },
+    {
+      title: "Upgrade Plan",
+      url: "/plan",
+      icon: IconSparkles2,
+    },
+    {
+      title: "Feedback",
+      url: "/feedback",
+      icon: IconSend2,
+    },
   ]
+
 }
 
 export const DATABASE_INDUSTRY = [
