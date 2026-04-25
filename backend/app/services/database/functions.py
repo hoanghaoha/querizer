@@ -30,7 +30,7 @@ async def generate_database(
                 "description": generator.description,
                 "size": generator.size,
                 "row_count": generator.row_count,
-                "schema": generator.schema,
+                "db_schema": generator.schema,
                 "db_path": generator.db_path,
             }
         ).execute()

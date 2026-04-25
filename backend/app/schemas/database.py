@@ -34,3 +34,16 @@ class DatabaseGenerateRequest(BaseModel):
 
 class DatabaseGenerateResponse(BaseModel):
     id: str
+
+
+class DatabaseResponse(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    industry: DatabaseIndustry
+    size: DatabaseSize
+    description: str
+    row_count: int
+    db_schema: dict
+    db_path: str
+    created_at: str

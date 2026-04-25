@@ -1,4 +1,4 @@
-import { IconBolt, IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconFlame, IconHeartbeat, IconLeaf, IconMoodSmile, IconPlane, IconSchool, IconSend2, IconShare, IconShoppingCart, IconSkull, IconSparkles2, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck, IconUserCircle } from "@tabler/icons-react";
+import { IconBolt, IconBrandShopee, IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconChartBar, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconDots, IconFlame, IconHeartbeat, IconLeaf, IconMoodSmile, IconPlane, IconSchool, IconSend2, IconShare, IconShoppingCart, IconSkull, IconSparkles2, IconSword, IconToolsKitchen2, IconTreadmill, IconTruck, IconUserCircle, IconUsers } from "@tabler/icons-react";
 
 export const NAV_DATA = {
   workspace: [
@@ -51,19 +51,22 @@ export const NAV_DATA = {
 }
 
 export const DATABASE_INDUSTRY = [
-  { title: "Technology", icon: IconDeviceLaptop },    // #1 — software, SaaS, data engineering
-  { title: "Finance", icon: IconCoin },            // #2 — banking, trading, risk analysis
-  { title: "Retail", icon: IconShoppingCart },    // #3 — e-commerce, inventory, sales
-  { title: "Healthcare", icon: IconHeartbeat },       // #4 — EHR, clinical data, billing
-  { title: "Manufacturing", icon: IconBuildingFactory }, // #5 — ERP, supply chain, QA
-  { title: "Logistics", icon: IconTruck },           // #6 — fleet, warehouse, tracking
-  { title: "Government", icon: IconBuildingBank },    // #7 — public records, tax, census
-  { title: "Education", icon: IconSchool },          // #8 — LMS, student records, research
-  { title: "F&B", icon: IconToolsKitchen2 },  // #9 — POS, inventory, franchises
-  { title: "Travel", icon: IconPlane },           // #10 — booking, reservations, pricing
-  { title: "Real Estate", icon: IconBuildingSkyscraper }, // #11 — listings, CRM, transactions
-  { title: "Media", icon: IconDeviceTv },        // #12 — analytics, subscriptions, ads
-]
+  { title: "Technology", icon: IconDeviceLaptop },
+  { title: "Finance", icon: IconCoin },
+  { title: "Retail", icon: IconShoppingCart },
+  { title: "E-commerce", icon: IconBrandShopee },
+  { title: "Healthcare", icon: IconHeartbeat },
+  { title: "Manufacturing", icon: IconBuildingFactory },
+  { title: "Logistics", icon: IconTruck },
+  { title: "Education", icon: IconSchool },
+  { title: "Food & Beverage", icon: IconToolsKitchen2 },
+  { title: "Real Estate", icon: IconBuildingSkyscraper },
+  { title: "Media & Entertainment", icon: IconDeviceTv },
+  { title: "Market Research", icon: IconChartBar },
+  { title: "HR / Workforce", icon: IconUsers },
+  { title: "Other", icon: IconDots },
+] as const
+
 
 export const DATABASE_SIZE = [
   { title: "Small", icon: IconCircle },

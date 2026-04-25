@@ -8,27 +8,22 @@ import { Input } from "@/components/ui/input"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useUser } from "@/hooks/user"
-import { api } from "@/lib/api"
+import { useUpdateUser, useUser } from "@/hooks/user"
 import { IconLoader2, IconSparkles } from "@tabler/icons-react"
 import { useState } from "react"
-import { toast } from "sonner"
 
 const Page = () => {
-  const { user, refresh, loading } = useUser()
+  const { user, refresh } = useUser()
+  const { update, loading: updateLoading } = useUpdateUser(refresh)
 
   const [userName, setUserName] = useState(user?.name)
   const [userExpertise, setUserExpertise] = useState(user?.expertise)
   const [userSqlLevel, setUserSqlLevel] = useState(user?.sql_level)
 
 
-  const handleUpdate = async () => {
-    await api("/user/update", {
-      method: "POST",
-      body: JSON.stringify({ name: userName, expertise: userExpertise, sql_level: userSqlLevel })
-    })
-    refresh()
-    toast.success("User Updated")
+  const handleUpdate = async (e: React.SubmitEvent) => {
+    e.preventDefault()
+    await update({ name: userName, expertise: userExpertise, sql_level: userSqlLevel })
   }
 
   return (
@@ -63,10 +58,7 @@ const Page = () => {
             <CardTitle>Your information</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="flex flex-col gap-4" id="user-form" onSubmit={e => {
-              e.preventDefault();
-              handleUpdate()
-            }}>
+            <form className="flex flex-col gap-4" id="user-form" onSubmit={handleUpdate}>
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -102,8 +94,8 @@ const Page = () => {
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2 items-end">
-            <Button type="submit" form="user-form" disabled={loading}>
-              {loading ? <IconLoader2 className="animate-spin" /> : ""}
+            <Button type="submit" form="user-form" disabled={updateLoading}>
+              {updateLoading ? <IconLoader2 className="animate-spin" /> : ""}
               Update
             </Button>
           </CardFooter>

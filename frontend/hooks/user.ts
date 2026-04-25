@@ -53,3 +53,30 @@ export function useUser() {
   return { user, refresh: load, loading }
 
 }
+
+export function useUpdateUser(onSuccess?: () => void) {
+  const [loading, setLoading] = useState(false)
+
+  const update = async (data: {
+    name?: string
+    expertise?: string
+    sql_level?: string
+    plan?: string
+  }) => {
+    setLoading(true)
+    try {
+      await api("/user/update", {
+        method: "POST",
+        body: JSON.stringify(data),
+      })
+      toast.success("User updated")
+      onSuccess?.()
+    } catch {
+      toast.error("Failed to update user — see console for details")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { update, loading }
+}

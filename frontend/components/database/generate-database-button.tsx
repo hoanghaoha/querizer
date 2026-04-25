@@ -10,35 +10,26 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Textarea } from "../ui/textarea"
 import { DATABASE_INDUSTRY, DATABASE_SIZE } from "@/lib/const"
 import { useState } from "react"
-import { api } from "@/lib/api"
-import { toast } from "sonner"
+import { useGenerateDatabase } from "@/hooks/database"
 
-const GenerateDatabaseButton = () => {
+const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
+  const [open, setOpen] = useState(false)
   const [name, setName] = useState<string | null>(null)
   const [industry, setIndustry] = useState<string | null>(null)
   const [size, setSize] = useState<string | null>(null)
   const [description, setDescription] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const { generate, loading } = useGenerateDatabase(() => {
+    setOpen(false)
+    onClick?.()
+  })
 
   const handleGenerate = async (e: React.SubmitEvent) => {
     e.preventDefault()
-    setLoading(true)
-    try {
-      await api("/database", {
-        method: "POST",
-        body: JSON.stringify({ name, industry, size, description }),
-      })
-      toast.success("Database generated")
-    } catch {
-      toast.error("Failed to generate database — see console for details")
-    }
-    finally {
-      setLoading(false)
-    }
+    await generate({ name, industry, size, description })
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <IconPlus />
