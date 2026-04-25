@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_key: str = ""
     anthropic_key: str = ""
-    databases_path: str = ""
+    databases_path: str = "/tmp/databases"
     app_url: str = ""
 
     class Config:

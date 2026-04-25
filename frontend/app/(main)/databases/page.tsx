@@ -1,4 +1,4 @@
-import GenerateDatabaseButton from "@/components/database/create-database-button"
+import GenerateDatabaseButton from "@/components/database/generate-database-button"
 
 const Page = () => {
   return (
