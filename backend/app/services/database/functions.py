@@ -1,6 +1,13 @@
 import os
+import sqlite3
+import tempfile
 from fastapi import HTTPException
-from app.schemas.database import DatabaseGenerateRequest, DatabaseGenerateResponse
+from app.schemas.database import (
+    DatabaseGenerateRequest,
+    DatabaseGenerateResponse,
+    DatabaseQueryResponse,
+    DatabaseResponse,
+)
 from app.services.database.utils import DatabaseGenerator
 from app.supabase import db
 from app.config import settings
@@ -18,7 +25,8 @@ async def generate_database(
     try:
         await generator.generate()
 
-        _upload_to_storage(generator.db_path, f"{user_id}/{generator.database_id}")
+        storage_path = f"{user_id}/{generator.database_id}"
+        _upload_to_storage(generator.db_path, storage_path)
         uploaded = True
 
         db.table("databases").insert(
@@ -31,7 +39,7 @@ async def generate_database(
                 "size": generator.size,
                 "row_count": generator.row_count,
                 "db_schema": generator.schema,
-                "db_path": generator.db_path,
+                "db_path": storage_path,
             }
         ).execute()
 
@@ -83,3 +91,35 @@ def _upload_to_storage(local_path: str, storage_path: str) -> None:
             status_code=503,
             detail=f"Cannot upload to storage: {storage_path}, {e}",
         ) from e
+
+
+def get_database(database_id: str, user_id: str) -> DatabaseResponse:
+    result = (
+        db.table("databases")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("id", database_id)
+        .single()
+        .execute()
+    )
+    return DatabaseResponse.model_validate(result.data)
+
+
+def query_database(db_path: str, dql: str) -> DatabaseQueryResponse:
+    res = db.storage.from_("databases").download(db_path)
+
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
+        tmp.write(res)
+        tmp_path = tmp.name
+
+    try:
+        conn = sqlite3.connect(tmp_path)
+        cursor = conn.cursor()
+        cursor.execute(dql)
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+        conn.close()
+    finally:
+        os.remove(tmp_path)
+
+    return DatabaseQueryResponse.model_validate({"rows": rows, "columns": columns})

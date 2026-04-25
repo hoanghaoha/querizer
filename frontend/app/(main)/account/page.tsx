@@ -8,13 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useUpdateUser, useUser } from "@/hooks/user"
+import { useUser, useUserUpdate } from "@/hooks/user"
 import { IconLoader2, IconSparkles } from "@tabler/icons-react"
 import { useState } from "react"
 
 const Page = () => {
   const { user, refresh } = useUser()
-  const { update, loading: updateLoading } = useUpdateUser(refresh)
+  const { update, loading: updateLoading } = useUserUpdate(refresh)
 
   const [userName, setUserName] = useState(user?.name)
   const [userExpertise, setUserExpertise] = useState(user?.expertise)

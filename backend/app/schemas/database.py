@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Any
 from pydantic.main import BaseModel
 
 
@@ -25,17 +26,6 @@ class DatabaseSize(str, Enum):
     LARGE = "Large"
 
 
-class DatabaseGenerateRequest(BaseModel):
-    name: str
-    industry: DatabaseIndustry
-    size: DatabaseSize
-    description: str | None = None
-
-
-class DatabaseGenerateResponse(BaseModel):
-    id: str
-
-
 class DatabaseResponse(BaseModel):
     id: str
     user_id: str
@@ -47,3 +37,23 @@ class DatabaseResponse(BaseModel):
     db_schema: dict
     db_path: str
     created_at: str
+
+
+class DatabaseGenerateRequest(BaseModel):
+    name: str
+    industry: DatabaseIndustry
+    size: DatabaseSize
+    description: str | None = None
+
+
+class DatabaseGenerateResponse(BaseModel):
+    id: str
+
+
+class DatabaseQueryRequest(BaseModel):
+    dql: str
+
+
+class DatabaseQueryResponse(BaseModel):
+    rows: list[list[Any]]
+    columns: list[str]

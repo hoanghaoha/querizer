@@ -54,7 +54,7 @@ export function useUser() {
 
 }
 
-export function useUpdateUser(onSuccess?: () => void) {
+export function useUserUpdate(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false)
 
   const update = async (data: {

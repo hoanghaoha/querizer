@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Textarea } from "../ui/textarea"
 import { DATABASE_INDUSTRY, DATABASE_SIZE } from "@/lib/const"
 import { useState } from "react"
-import { useGenerateDatabase } from "@/hooks/database"
+import { useDatabaseGenerate } from "@/hooks/database"
 
 const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
   const [open, setOpen] = useState(false)
@@ -18,7 +18,7 @@ const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
   const [industry, setIndustry] = useState<string | null>(null)
   const [size, setSize] = useState<string | null>(null)
   const [description, setDescription] = useState<string | null>(null)
-  const { generate, loading } = useGenerateDatabase(() => {
+  const { generate, loading } = useDatabaseGenerate(() => {
     setOpen(false)
     onClick?.()
   })

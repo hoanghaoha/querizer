@@ -1,7 +1,7 @@
 "use client"
 
 import DatabaseCard from "@/components/database/database-card"
-import GenerateDatabaseButton from "@/components/database/generate-database-button"
+import GenerateDatabaseButton from "@/components/database/database-generate-button"
 import { useDatabases } from "@/hooks/database"
 
 const Page = () => {

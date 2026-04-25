@@ -49,7 +49,7 @@ export type DatabaseColumn = {
 
 export type DatabaseTable = {
   name: string
-  row_count?: number
+  row_count: number
   columns: DatabaseColumn[]
 }
 
@@ -65,7 +65,12 @@ export type Database = {
   size: DatabaseSize
   description?: string
   row_count: number
-  schema: DatabaseSchema
+  db_schema: DatabaseSchema
   db_path: string
   created_at: string
+}
+
+export type DatabaseQueryData = {
+  rows: unknown[][]
+  columns: string[]
 }
