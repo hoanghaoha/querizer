@@ -29,7 +29,10 @@ const GenerateDatabaseButton = () => {
         body: JSON.stringify({ name, industry, size, description }),
       })
       toast.success("Database generated")
-    } finally {
+    } catch {
+      toast.error("Failed to generate database — see console for details")
+    }
+    finally {
       setLoading(false)
     }
   }

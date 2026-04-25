@@ -7,19 +7,21 @@ async function getToken() {
   return session?.access_token ?? null
 }
 
-export async function api(
-  path: string,
-  options: RequestInit = {}
-) {
+export async function api(path: string, options: RequestInit = {}) {
   const token = await getToken()
+  const url = `${BACKEND_URL}${path}`
 
-  const res = await fetch(`${BACKEND_URL}${path}`, {
+  console.log(`[api] ${options.method ?? "GET"} ${url}`, {
+    body: options.body ? JSON.parse(options.body as string) : undefined,
+  })
+
+  const res = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers
-    }
+      ...options.headers,
+    },
   })
 
   if (!res.ok) {
@@ -32,8 +34,12 @@ export async function api(
       error?.message ??
       error?.error ??
       `Request failed with status ${res.status}`
+
+    console.error(`[api] ${res.status} ${url}`, { error })
     throw new Error(message)
   }
 
-  return res.json()
+  const data = await res.json()
+  console.log(`[api] ${res.status} ${url}`, { data })
+  return data
 }
