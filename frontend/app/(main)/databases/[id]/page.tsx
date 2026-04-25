@@ -1,5 +1,6 @@
 "use client"
 
+import DatabaseSqlEditor from "@/components/database/database-editor"
 import DatabaseSchemaVisualizer from "@/components/database/database-schema-visualizer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDatabase } from "@/hooks/database"
@@ -20,6 +21,9 @@ const Page = () => {
       </TabsList>
       <TabsContent value="schema">
         <DatabaseSchemaVisualizer {...database} />
+      </TabsContent>
+      <TabsContent value="editor">
+        <DatabaseSqlEditor {...database} />
       </TabsContent>
     </Tabs>
   )
