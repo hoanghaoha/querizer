@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase"
 import { User } from "@/lib/types"
 import { useCallback, useEffect, useState } from "react"
 import type { User as AuthUser } from '@supabase/supabase-js'
+import { toast } from "sonner"
 
 export function useAuth() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
@@ -40,6 +41,8 @@ export function useUser() {
         })
       })
       setUser(user)
+    } catch {
+      toast.error("Error when get user.")
     } finally {
       setLoading(false)
     }
