@@ -1,6 +1,7 @@
 "use client"
 
-import { Database, DatabaseColumn, DatabaseSchema } from "@/lib/types"
+import { Database, DatabaseColumn, DatabaseQueryData, DatabaseSchema } from "@/lib/types"
+import QueryResultDrawer from "./query-result-drawer"
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -15,8 +16,8 @@ import {
   type NodeMouseHandler,
 } from "@xyflow/react"
 import { useEffect, useMemo, useState } from "react"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { useDatabaseQuery } from "@/hooks/database"
+import { toast } from "sonner"
 
 type TableNodeData = {
   name: string
@@ -153,54 +154,44 @@ function TableDataDrawer({ open, onClose, databaseId, tableName }: {
   databaseId: string
   tableName: string
 }) {
-  const { data } = useDatabaseQuery({ id: databaseId, dql: `SELECT * FROM ${tableName}` })
+  const [data, setData] = useState<DatabaseQueryData | null>(null)
+  const { query, querying } = useDatabaseQuery()
+
+  useEffect(() => {
+    if (!open) return
+    const runQuery = async () => {
+      const result = await query({ id: databaseId, dql: `SELECT * FROM ${tableName}` })
+      if (result) {
+        setData(result)
+      } else {
+        toast.error("Query failed.")
+      }
+    }
+    runQuery()
+  }, [open, databaseId, tableName])
 
   return (
-    <Drawer open={open} onOpenChange={(v) => !v && onClose()} direction="bottom">
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>{tableName}</DrawerTitle>
-        </DrawerHeader>
-        {data ? (
-          <div className="overflow-auto px-4 pb-4 max-h-[80vh]">
-            <table className="w-full caption-bottom text-xs">
-              <thead className="sticky top-0 z-10 bg-muted [&_tr]:border-b">
-                <tr className="border-b">
-                  {data.columns.map(col => (
-                    <th key={col} className="h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground">
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="[&_tr:last-child]:border-0">
-                {data.rows.map((row, i) => (
-                  <tr key={i} className="border-b transition-colors hover:bg-muted/50">
-                    {row.map((cell, j) => (
-                      <td key={j} className="p-2 align-middle whitespace-nowrap">{String(cell ?? "")}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : <p className="text-center w-full">Loading...</p>}
-      </DrawerContent>
-    </Drawer>
+    <QueryResultDrawer
+      open={open}
+      onClose={onClose}
+      title={tableName}
+      data={data}
+      loading={querying}
+    />
   )
 }
 
-export default function DatabaseSchemaVisualizer(dataset: Database) {
+export default function DatabaseSchemaVisualizer({ id, db_schema }: Database) {
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
 
   return (
     <ReactFlowProvider>
-      <Flow schema={dataset.db_schema as DatabaseSchema} onTableClick={setSelectedTable} />
+      <Flow schema={db_schema as DatabaseSchema} onTableClick={setSelectedTable} />
       {selectedTable && (
         <TableDataDrawer
           open={!!selectedTable}
           onClose={() => setSelectedTable(null)}
-          databaseId={dataset.id}
+          databaseId={id}
           tableName={selectedTable}
         />
       )}

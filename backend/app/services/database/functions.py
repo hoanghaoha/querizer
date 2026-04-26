@@ -7,6 +7,7 @@ from app.schemas.database import (
     DatabaseGenerateResponse,
     DatabaseQueryResponse,
     DatabaseResponse,
+    UpdateDatabaseRequest,
 )
 from app.services.database.utils import DatabaseGenerator
 from app.supabase import db
@@ -123,3 +124,51 @@ def query_database(db_path: str, dql: str) -> DatabaseQueryResponse:
         os.remove(tmp_path)
 
     return DatabaseQueryResponse.model_validate({"rows": rows, "columns": columns})
+
+
+def update_database(body: UpdateDatabaseRequest, database_id: str, user_id: str):
+    existing = (
+        db.table("databases")
+        .select("id")
+        .eq("id", database_id)
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    updates = body.model_dump(exclude_none=True)
+
+    result = (
+        db.table("databases")
+        .update(updates)
+        .eq("id", database_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+
+    return DatabaseResponse.model_validate(result.data[0])
+
+
+def delete_database(database_id: str, user_id: str):
+    result = (
+        db.table("databases")
+        .select("id, db_path")
+        .eq("id", database_id)
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    db.table("databases").delete().eq("id", database_id).eq(
+        "user_id", user_id
+    ).execute()
+
+    db.storage.from_("databases").remove([result.data["db_path"]])  # type: ignore
+
+    return {"deleted": True}

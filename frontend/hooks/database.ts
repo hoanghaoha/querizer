@@ -45,11 +45,11 @@ export function useDatabase(id: string) {
 
   useEffect(() => { load() }, [load])
 
-  return { database, loading }
+  return { database, loading, refresh: load }
 }
 
 export function useDatabaseGenerate(onSuccess?: () => void) {
-  const [loading, setLoading] = useState(false)
+  const [generating, setGenerating] = useState(false)
 
   const generate = async (data: {
     name: string | null
@@ -57,7 +57,7 @@ export function useDatabaseGenerate(onSuccess?: () => void) {
     size: string | null
     description: string | null
   }) => {
-    setLoading(true)
+    setGenerating(true)
     try {
       await api("/database", {
         method: "POST",
@@ -68,30 +68,72 @@ export function useDatabaseGenerate(onSuccess?: () => void) {
     } catch {
       toast.error("Failed to generate database — see console for details")
     } finally {
-      setLoading(false)
+      setGenerating(false)
     }
   }
 
-  return { generate, loading }
+  return { generate, generating }
 }
 
-export function useDatabaseQuery({ id, dql }: { id: string, dql: string }) {
-  const [loading, setLoading] = useState(false)
-  const [data, setData] = useState<DatabaseQueryData | null>(null)
+export function useDatabaseQuery() {
+  const [querying, setQuerying] = useState(false)
 
-  const query = useCallback(async () => {
-    setLoading(true)
+  const query = async ({ id, dql }: { id: string, dql: string }) => {
+    setQuerying(true)
     try {
-      const result = await api(`/database/query/${id}`, { method: "POST", body: JSON.stringify({ dql }) })
-      setData(result)
+      const result = await api(`/database/query/${id}`, {
+        method: "POST",
+        body: JSON.stringify({ dql }),
+      }) as DatabaseQueryData
+      return result
     } catch {
       toast.error("Failed to query database - see console for details")
     } finally {
-      setLoading(false)
+      setQuerying(false)
     }
-  }, [id, dql])
+  }
 
-  useEffect(() => { query() }, [query])
+  return { query, querying }
+}
 
-  return { data, loading }
+export function useDatabaseUpdate(onSuccess?: () => void) {
+  const [updating, setUpdating] = useState(false)
+
+  const update = async ({ id, name, description }: { id: string, name?: string, description?: string }) => {
+    setUpdating(true)
+    try {
+      const result = await api(`/database/${id}`, { method: "PATCH", body: JSON.stringify({ name, description }) }) as Database
+      onSuccess?.()
+      if (result) {
+        toast.success("Database updated.")
+      } else {
+        toast.error("Database update failed - see console for details")
+      }
+    } catch {
+      toast.error("Database update failed - see console for details")
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  return { update, updating }
+}
+
+export function useDatabaseDelete(onSuccess?: () => void) {
+  const [deleting, setDeleting] = useState(false)
+
+  const deleteDatabase = async ({ id }: { id: string }) => {
+    setDeleting(true)
+    try {
+      api(`/database/${id}`, { method: "DELETE" })
+      onSuccess?.()
+      toast.success("Database deleted.")
+    } catch {
+      toast.error("Database delete failed - see console for details")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  return { deleteDatabase, deleting }
 }

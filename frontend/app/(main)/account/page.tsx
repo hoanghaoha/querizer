@@ -14,7 +14,7 @@ import { useState } from "react"
 
 const Page = () => {
   const { user, refresh } = useUser()
-  const { update, loading: updateLoading } = useUserUpdate(refresh)
+  const { update, updating } = useUserUpdate(refresh)
 
   const [userName, setUserName] = useState(user?.name)
   const [userExpertise, setUserExpertise] = useState(user?.expertise)
@@ -94,8 +94,8 @@ const Page = () => {
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2 items-end">
-            <Button type="submit" form="user-form" disabled={updateLoading}>
-              {updateLoading ? <IconLoader2 className="animate-spin" /> : ""}
+            <Button type="submit" form="user-form" disabled={updating}>
+              {updating ? <IconLoader2 className="animate-spin" /> : ""}
               Update
             </Button>
           </CardFooter>

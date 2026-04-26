@@ -1,70 +1,34 @@
 "use client"
 
 import { useState } from "react"
-import { IconArrowsVertical, IconClearFormatting, IconPlayerPlay, IconX } from "@tabler/icons-react"
+import { IconArrowsVertical, IconClearFormatting, IconPlayerPlay } from "@tabler/icons-react"
 import CodeMirror from "@uiw/react-codemirror"
 import { sql } from "@codemirror/lang-sql"
 import { oneDark } from "@codemirror/theme-one-dark"
 import { format } from "sql-formatter"
 import { Database, DatabaseQueryData } from "@/lib/types"
-import { api } from "@/lib/api"
 import { Button } from "../ui/button"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer"
-
-
-const ResultTable = ({ result }: { result: DatabaseQueryData }) => (
-  result.rows.length === 0
-    ? <p className="text-sm text-muted-foreground px-2">Query returned 0 rows.</p>
-    : <table className="w-full text-sm border-collapse">
-      <thead>
-        <tr className="bg-muted sticky top-0">
-          {result.columns.map(col => (
-            <th key={col} className="text-left px-3 py-2 border border-border font-medium text-muted-foreground whitespace-nowrap">
-              {col}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {result.rows.map((row, i) => (
-          <tr key={i} className="hover:bg-muted/50">
-            {(row as unknown[]).map((cell, j) => (
-              <td key={j} className="px-3 py-1.5 border border-border whitespace-nowrap">
-                {cell === null
-                  ? <span className="text-muted-foreground italic">null</span>
-                  : String(cell)}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-)
+import { useDatabaseQuery } from "@/hooks/database"
+import QueryResultDrawer from "./query-result-drawer"
 
 const DatabaseSqlEditor = (database: Database) => {
   const [dql, setDql] = useState("SELECT *\nFROM ")
-  const [result, setResult] = useState<DatabaseQueryData | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
+  const [result, setResult] = useState<DatabaseQueryData | null>(null)
+  const { query, querying } = useDatabaseQuery()
 
   const runQuery = async () => {
     if (!dql.trim()) return
-    setLoading(true)
     setError(null)
-    try {
-      const data = await api(`/database/query/${database.id}`, {
-        method: "POST",
-        body: JSON.stringify({ dql }),
-      }) as DatabaseQueryData
+    const id = database.id
+    const data = await query({ id, dql })
+    if (data) {
       setResult(data)
-      setOpen(true)
-    } catch (e: any) {
-      setError(e?.message ?? "Query failed")
-      setOpen(true)
-    } finally {
-      setLoading(false)
+    } else {
+      setError("Query failed")
     }
+    setOpen(true)
   }
 
   return (
@@ -96,27 +60,21 @@ const DatabaseSqlEditor = (database: Database) => {
               <IconArrowsVertical />
               Result
             </Button>
-            <Button size="sm" onClick={runQuery} disabled={loading}>
+            <Button size="sm" onClick={runQuery} disabled={querying}>
               <IconPlayerPlay className="size-3.5" />
-              {loading ? "Running..." : "Run"}
+              {querying ? "Running..." : "Run"}
             </Button>
           </div>
         </>
       </div>
-      <Drawer direction="bottom" open={open} onOpenChange={setOpen}>
-        <DrawerContent className="max-h-[80vh]">
-          <DrawerHeader className="flex flex-row items-center justify-between py-2 px-4">
-            <DrawerTitle className="sr-only">Query Results</DrawerTitle>
-          </DrawerHeader>
-          <div className="overflow-auto flex-1 px-2 pb-4">
-            {error ? (
-              <pre className="text-sm font-mono text-destructive bg-destructive/10 rounded p-3">{error}</pre>
-            ) : result ? (
-              <ResultTable result={result} />
-            ) : null}
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <QueryResultDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Query Results"
+        data={result}
+        loading={querying}
+        error={error}
+      />
     </div>
   )
 }

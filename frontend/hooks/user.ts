@@ -22,10 +22,9 @@ export function useAuth() {
 }
 
 export function useUser() {
+  const authUser = useAuth()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const authUser = useAuth()
-
 
   const load = useCallback(async () => {
     if (!authUser) return
@@ -42,7 +41,7 @@ export function useUser() {
       })
       setUser(user)
     } catch {
-      toast.error("Error when get user.")
+      toast.error("Error when get user - see console for details")
     } finally {
       setLoading(false)
     }
@@ -50,12 +49,12 @@ export function useUser() {
 
   useEffect(() => { load() }, [load])
 
-  return { user, refresh: load, loading }
+  return { user, loading, refresh: load }
 
 }
 
 export function useUserUpdate(onSuccess?: () => void) {
-  const [loading, setLoading] = useState(false)
+  const [updating, setUpdating] = useState(false)
 
   const update = async (data: {
     name?: string
@@ -63,7 +62,7 @@ export function useUserUpdate(onSuccess?: () => void) {
     sql_level?: string
     plan?: string
   }) => {
-    setLoading(true)
+    setUpdating(true)
     try {
       await api("/user/update", {
         method: "POST",
@@ -74,9 +73,9 @@ export function useUserUpdate(onSuccess?: () => void) {
     } catch {
       toast.error("Failed to update user — see console for details")
     } finally {
-      setLoading(false)
+      setUpdating(false)
     }
   }
 
-  return { update, loading }
+  return { update, updating }
 }

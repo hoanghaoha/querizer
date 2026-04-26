@@ -6,11 +6,14 @@ from app.schemas.database import (
     DatabaseQueryRequest,
     DatabaseQueryResponse,
     DatabaseResponse,
+    UpdateDatabaseRequest,
 )
 from app.services.database.functions import (
+    delete_database,
     generate_database,
     get_database,
     query_database,
+    update_database,
 )
 from app.supabase import db
 
@@ -48,3 +51,17 @@ async def query_database_endpoint(
     database = get_database(database_id, user_id)
 
     return query_database(database.db_path, body.dql)
+
+
+@router.patch("/{database_id}")
+async def update_database_endpoint(
+    body: UpdateDatabaseRequest, database_id: str, user_id: str = Depends(verify_token)
+):
+    return update_database(body, database_id, user_id)
+
+
+@router.delete("/{database_id}")
+async def delete_database_endpoint(
+    database_id: str, user_id: str = Depends(verify_token)
+):
+    return delete_database(database_id, user_id)

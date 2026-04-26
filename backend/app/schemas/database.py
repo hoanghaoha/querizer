@@ -57,3 +57,8 @@ class DatabaseQueryRequest(BaseModel):
 class DatabaseQueryResponse(BaseModel):
     rows: list[list[Any]]
     columns: list[str]
+
+
+class UpdateDatabaseRequest(BaseModel):
+    name: str
+    description: str

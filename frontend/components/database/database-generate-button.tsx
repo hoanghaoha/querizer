@@ -18,7 +18,7 @@ const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
   const [industry, setIndustry] = useState<string | null>(null)
   const [size, setSize] = useState<string | null>(null)
   const [description, setDescription] = useState<string | null>(null)
-  const { generate, loading } = useDatabaseGenerate(() => {
+  const { generate, generating } = useDatabaseGenerate(() => {
     setOpen(false)
     onClick?.()
   })
@@ -111,8 +111,8 @@ const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit" disabled={loading}>
-              {loading
+            <Button type="submit" disabled={generating}>
+              {generating
                 ? <IconLoader2 className="animate-spin" />
                 : <IconSparkles />
               }

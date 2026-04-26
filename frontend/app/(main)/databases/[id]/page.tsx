@@ -2,6 +2,7 @@
 
 import DatabaseSqlEditor from "@/components/database/database-editor"
 import DatabaseSchemaVisualizer from "@/components/database/database-schema-visualizer"
+import DatabaseSettings from "@/components/database/database-settings"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDatabase } from "@/hooks/database"
 import { useParams } from "next/navigation"
@@ -17,13 +18,16 @@ const Page = () => {
       <TabsList variant={"line"}>
         <TabsTrigger value="schema">Schema</TabsTrigger>
         <TabsTrigger value="editor">SQL Editor</TabsTrigger>
-        <TabsTrigger value="Settings">Settings</TabsTrigger>
+        <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
       <TabsContent value="schema">
         <DatabaseSchemaVisualizer {...database} />
       </TabsContent>
       <TabsContent value="editor">
         <DatabaseSqlEditor {...database} />
+      </TabsContent>
+      <TabsContent value="settings">
+        <DatabaseSettings {...database} />
       </TabsContent>
     </Tabs>
   )
