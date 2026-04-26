@@ -10,6 +10,7 @@ from app.schemas.database import (
     UpdateDatabaseRequest,
 )
 from app.services.database.utils import DatabaseGenerator
+from app.services.quota import check_quota
 from app.services.tracking import track_db_generated
 from app.supabase import db
 from app.config import settings
@@ -18,6 +19,7 @@ from app.config import settings
 async def generate_database(
     user_id: str, database_generate_request: DatabaseGenerateRequest
 ) -> DatabaseGenerateResponse:
+    check_quota(user_id, "db")
     _ensure_bucket_exists("databases")
     os.makedirs(settings.databases_path, exist_ok=True)
 

@@ -251,11 +251,21 @@ class DatabaseGenerator:
         if faker_method is None:
             raise ValueError(f"Unknown faker method: {gen['faker_key']}")
         args = gen.get("faker_args", {})
-        return str(faker_method(**args) if args else faker_method())
+        try:
+            return str(faker_method(**args) if args else faker_method())
+        except ValueError:
+            # Date range was reversed or invalid — fall back to a safe default range
+            if "start_date" in args or "end_date" in args:
+                return str(faker_method(start_date="-5y", end_date="today"))
+            raise
 
     def _enum(self, gen: dict) -> str:
         """Pick a random value from a fixed list, with optional weights."""
-        return random.choices(gen["values"], weights=gen.get("weights"), k=1)[0]
+        values = gen["values"]
+        weights = gen.get("weights")
+        if weights and len(weights) != len(values):
+            weights = None
+        return random.choices(values, weights=weights, k=1)[0]
 
     def _numpy(self, gen: dict) -> float:
         """

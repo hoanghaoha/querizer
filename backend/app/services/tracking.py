@@ -31,30 +31,39 @@ def _log_action(user_id: str, action_type: str, metadata: dict):
     ).execute()
 
 
+def _cycle_reset_at() -> str:
+    from dateutil.relativedelta import relativedelta
+
+    return (datetime.now(timezone.utc) + relativedelta(months=1)).isoformat()
+
+
 def _increment_usage(user_id: str, **fields: int):
     now = datetime.now(timezone.utc)
-    year, month = now.year, now.month
 
-    existing = (
-        db.table("user_usages")
-        .select("*")
-        .eq("user_id", user_id)
-        .eq("year", year)
-        .eq("month", month)
-        .execute()
-    )
+    existing = db.table("user_usages").select("*").eq("user_id", user_id).execute()
 
     if existing.data:
         row = existing.data[0]
-        updates = {k: (row.get(k) or 0) + v for k, v in fields.items()}  # type: ignore
-        db.table("user_usages").update(updates).eq("id", row["id"]).execute()  # type: ignore
+        reset_at = datetime.fromisoformat(row["reset_at"])  # type: ignore
+        if reset_at <= now:
+            db.table("user_usages").update(
+                {
+                    "n_db_generated": 0,
+                    "n_challenge_generated": 0,
+                    "n_hints_used": 0,
+                    "reset_at": _cycle_reset_at(),
+                    **{k: v for k, v in fields.items()},
+                }
+            ).eq("id", row["id"]).execute()
+        else:
+            updates = {k: (row.get(k) or 0) + v for k, v in fields.items()}
+            db.table("user_usages").update(updates).eq("id", row["id"]).execute()
     else:
         db.table("user_usages").insert(
             {
                 "id": str(uuid.uuid4()),
                 "user_id": user_id,
-                "year": year,
-                "month": month,
+                "reset_at": _cycle_reset_at(),
                 **fields,
             }
         ).execute()

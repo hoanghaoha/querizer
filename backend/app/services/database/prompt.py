@@ -13,6 +13,7 @@ faker_key values: name, first_name, last_name, email, phone_number, job, company
 Dates: use faker_key "date_between" with faker_args. Values MUST be relative:
   Allowed: "today", "-Nd", "-Nw", "-Nm", "-Ny"  (e.g. "-2y", "-6m", "-30d")
   NEVER: "2020-01-01", "1y", bare positive offsets
+  CRITICAL: start_date MUST be further in the past than end_date (e.g. start_date:"-2y", end_date:"today" — NOT reversed)
 
 ### enum — status fields, categories, flags, any fixed-value column
 values: string list | weights: int list (same length, higher = more frequent)

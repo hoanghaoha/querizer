@@ -11,6 +11,7 @@ from app.schemas.challenge import (
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
 from app.services.challenge.utils import ChallengeGenerator
 from app.services.database.functions import get_database, query_database
+from app.services.quota import check_quota
 from app.services.tracking import (
     track_challenge_generated,
     track_hint_used,
@@ -69,6 +70,7 @@ def delete_challenge(challenge_id: str, user_id: str) -> None:
 async def generate_challenge(
     user_id: str, body: ChallengeGenerateRequest
 ) -> ChallengeResponse:
+    check_quota(user_id, "challenge")
     result = (
         db.table("databases")
         .select("industry,db_schema")
@@ -138,6 +140,7 @@ def submit_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitReque
 async def hint_challenge(
     challenge_id: str, user_id: str, body: ChallengeSubmitRequest
 ) -> ChallengeHintResponse:
+    check_quota(user_id, "hint")
     challenge = get_challenge(challenge_id, user_id)
     database = get_database(body.database_id, user_id)
 
