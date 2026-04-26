@@ -78,12 +78,6 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
         extensions={[sql()]}
         theme={oneDark}
         basicSetup={{ lineNumbers: true, foldGutter: false }}
-        onKeyDown={e => {
-          if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            e.preventDefault()
-            runQuery()
-          }
-        }}
         className="flex-1 text-sm overflow-y-auto"
       />
 
@@ -100,9 +94,7 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
                 Solution
               </Button>
             </>
-          ) : (
-            <span className="text-xs text-muted-foreground">Ctrl+Enter to run</span>
-          )}
+          ) : null}
         </div>
 
         <div className="flex gap-2">

@@ -1,7 +1,7 @@
 "use client"
 
 import { Database, DatabaseColumn, DatabaseQueryData, DatabaseSchema } from "@/lib/types"
-import QueryResultDrawer from "./query-result-drawer"
+import ResultDrawer from "@/components/sql-editor/result-drawer"
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -17,7 +17,6 @@ import {
 } from "@xyflow/react"
 import { useEffect, useMemo, useState } from "react"
 import { useDatabaseQuery } from "@/hooks/database"
-import { toast } from "sonner"
 
 type TableNodeData = {
   name: string
@@ -155,28 +154,31 @@ function TableDataDrawer({ open, onClose, databaseId, tableName }: {
   tableName: string
 }) {
   const [data, setData] = useState<DatabaseQueryData | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const { query, querying } = useDatabaseQuery()
 
   useEffect(() => {
     if (!open) return
     const runQuery = async () => {
-      const result = await query({ id: databaseId, dql: `SELECT * FROM ${tableName}` })
-      if (result) {
-        setData(result)
-      } else {
-        toast.error("Query failed.")
+      setError(null)
+      setData(null)
+      try {
+        setData(await query({ id: databaseId, dql: `SELECT * FROM ${tableName}` }))
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Query failed")
       }
     }
     runQuery()
   }, [open, databaseId, tableName])
 
   return (
-    <QueryResultDrawer
+    <ResultDrawer
       open={open}
       onClose={onClose}
       title={tableName}
       data={data}
       loading={querying}
+      error={error}
     />
   )
 }
