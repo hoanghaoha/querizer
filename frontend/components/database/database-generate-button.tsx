@@ -45,7 +45,7 @@ const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
             Tell us about your database that you want.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleGenerate} className="flex flex-col gap-4">
+        <form id="generate-database-form" onSubmit={handleGenerate} className="flex flex-col gap-4">
           <FieldGroup>
             <Field>
               <Label htmlFor="name">Name</Label>
@@ -107,19 +107,19 @@ const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
               />
             </Field>
           </FieldGroup>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit" disabled={generating}>
-              {generating
-                ? <IconLoader2 className="animate-spin" />
-                : <IconSparkles />
-              }
-              Generate
-            </Button>
-          </DialogFooter>
         </form>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button form="generate-database-form" type="submit" disabled={generating}>
+            {generating
+              ? <IconLoader2 className="animate-spin" />
+              : <IconSparkles />
+            }
+            {generating ? "Generating..." : "Generate"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

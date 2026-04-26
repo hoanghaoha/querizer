@@ -42,12 +42,12 @@ const GenerateChallengeButton = () => {
         </DialogHeader>
         <form id="generate-challenge-form" onSubmit={async (e) => {
           e.preventDefault()
-          await generate({ database_id: databaseId!, level: level!, topics: topics!, context: context! })
+          await generate({ database_id: databaseId!, level: level!, topics: topics || "Any topics", context: context || "" })
         }}>
           <FieldGroup>
             <Field>
               <Label>Database</Label>
-              <Select value={databaseId || ""} onValueChange={setDatabaseId}>
+              <Select value={databaseId || ""} onValueChange={setDatabaseId} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select database" />
                 </SelectTrigger>
@@ -65,7 +65,7 @@ const GenerateChallengeButton = () => {
             </Field>
             <Field>
               <Label htmlFor="industry">Level</Label>
-              <Select value={level || ""} onValueChange={(v) => setLevel(v as ChallengeLevel)}>
+              <Select value={level || ""} onValueChange={(v) => setLevel(v as ChallengeLevel)} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
