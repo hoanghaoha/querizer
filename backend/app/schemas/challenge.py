@@ -2,6 +2,8 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from app.schemas.database import DatabaseQueryResponse
+
 
 class ChallengeLevel(str, Enum):
     BEGINNER = "Beginner"
@@ -33,3 +35,13 @@ class ChallengeResponse(BaseModel):
     solution: str
     public: bool
     created_at: str
+
+
+class ChallengeSubmitRequest(BaseModel):
+    database_id: str
+    dql: str
+
+
+class ChallengeSubmitResponse(BaseModel):
+    solved: bool
+    result: DatabaseQueryResponse

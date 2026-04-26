@@ -85,5 +85,6 @@ export type Challenge = {
   description: string
   level: ChallengeLevel
   topics: string[]
+  solution: string
   public: boolean
 }

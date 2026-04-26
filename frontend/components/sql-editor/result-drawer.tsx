@@ -1,5 +1,7 @@
 import { DatabaseQueryData } from "@/lib/types"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
+import { IconCheck, IconX } from "@tabler/icons-react"
 
 type Props = {
   open: boolean
@@ -8,14 +10,32 @@ type Props = {
   data: DatabaseQueryData | null
   loading?: boolean
   error?: string | null
+  solved?: boolean | null
 }
 
-export default function QueryResultDrawer({ open, onClose, title, data, loading, error }: Props) {
+export default function ResultDrawer({ open, onClose, title, data, loading, error, solved }: Props) {
   return (
     <Drawer open={open} onOpenChange={(v) => !v && onClose()} direction="bottom">
-      <DrawerContent className="max-h-[80vh]">
-        <DrawerHeader>
-          <DrawerTitle>{title}</DrawerTitle>
+      <DrawerContent className="max-h-[60vh]">
+        <DrawerHeader className="flex flex-row items-center justify-between py-2 px-4">
+          <div className="flex items-center gap-3">
+            <DrawerTitle className="text-sm font-semibold">{title}</DrawerTitle>
+            {solved === true && (
+              <span className="flex items-center gap-1 text-xs font-medium text-emerald-500">
+                <IconCheck className="size-3.5" />
+                Correct
+              </span>
+            )}
+            {solved === false && (
+              <span className="flex items-center gap-1 text-xs font-medium text-destructive">
+                <IconX className="size-3.5" />
+                Incorrect
+              </span>
+            )}
+          </div>
+          <Button variant="ghost" size="icon" className="size-6" onClick={onClose}>
+            <IconX className="size-3.5" />
+          </Button>
         </DrawerHeader>
         <div className="overflow-auto flex-1 px-4 pb-4">
           {loading ? (

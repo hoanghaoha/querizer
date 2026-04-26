@@ -35,7 +35,7 @@ export async function api(path: string, options: RequestInit = {}) {
       error?.error ??
       `Request failed with status ${res.status}`
 
-    console.error(`[api] ${res.status} ${url}`, { error })
+    console.warn(`[api] ${res.status} ${url}`, error)
     throw new Error(message)
   }
 

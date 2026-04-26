@@ -116,10 +116,14 @@ def query_database(db_path: str, dql: str) -> DatabaseQueryResponse:
     try:
         conn = sqlite3.connect(tmp_path)
         cursor = conn.cursor()
-        cursor.execute(dql)
-        rows = cursor.fetchall()
-        columns = [col[0] for col in cursor.description]
-        conn.close()
+        try:
+            cursor.execute(dql)
+            rows = cursor.fetchall()
+            columns = [col[0] for col in cursor.description] if cursor.description else []
+        except sqlite3.Error as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        finally:
+            conn.close()
     finally:
         os.remove(tmp_path)
 

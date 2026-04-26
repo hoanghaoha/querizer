@@ -68,7 +68,7 @@ const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challen
             : <IconLock className="size-4 text-muted-foreground" />
           }
         </Button>
-        <Button size="icon" onClick={() => router.push(`/practice/${challenge.id}`)}>
+        <Button size="icon" onClick={() => router.push(`/challenges/${challenge.id}`)}>
           <IconArrowRight />
         </Button>
         <Button disabled={deleting} size="icon" variant="destructive" onClick={async () => await deleteChallenge({ id: challenge.id })}>

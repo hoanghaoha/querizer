@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import { toast } from "sonner"
-import { Challenge, ChallengeLevel } from "@/lib/types"
+import { Challenge, ChallengeLevel, DatabaseQueryData } from "@/lib/types"
 
 export function useChallenges(databaseId?: string) {
   const [loading, setLoading] = useState(false)
@@ -91,6 +91,47 @@ export function useChallengeDelete(onSuccess?: () => void) {
   return { deleteChallenge, deleting }
 }
 
+export function useChallengeSubmit() {
+  const [submitting, setSubmitting] = useState(false)
+
+  const submit = async ({ id, database_id, dql }: { id: string; database_id: string; dql: string }) => {
+    setSubmitting(true)
+    try {
+      const data = await api(`/challenge/submit/${id}`, {
+        method: "POST",
+        body: JSON.stringify({ database_id, dql }),
+      }) as { solved: boolean, result: DatabaseQueryData }
+      data.solved ? toast.success("Correct! Well done.") : toast.error("Not quite right. Try again.")
+      return data
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return { submit, submitting }
+}
+
+export function useChallengeHint() {
+  const [hinting, setHinting] = useState(false)
+
+  const hint = async ({ id, database_id, dql }: { id: string; database_id: string; dql: string }) => {
+    setHinting(true)
+    try {
+      const data = await api(`/challenge/hint/${id}`, {
+        method: "POST",
+        body: JSON.stringify({ database_id: database_id, dql }),
+      }) as string
+      return data
+    } catch {
+      toast.error("Failed to get hint - see console for details")
+    } finally {
+      setHinting(false)
+    }
+  }
+
+  return { hint, hinting }
+}
+
 export function useChallengeGenerate(onSuccess?: () => void) {
   const [generating, setGenerating] = useState(false)
 
@@ -118,3 +159,4 @@ export function useChallengeGenerate(onSuccess?: () => void) {
 
   return { generate, generating }
 }
+

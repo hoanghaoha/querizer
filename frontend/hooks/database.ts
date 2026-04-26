@@ -32,6 +32,7 @@ export function useDatabase(id: string) {
   const [database, setDatabase] = useState<Database | null>(null)
 
   const load = useCallback(async () => {
+    if (!id) return
     setLoading(true)
     try {
       const database = await api(`/database/${id}`, { method: "GET" }) as Database
@@ -41,7 +42,7 @@ export function useDatabase(id: string) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [id])
 
   useEffect(() => { load() }, [load])
 
@@ -81,13 +82,10 @@ export function useDatabaseQuery() {
   const query = async ({ id, dql }: { id: string, dql: string }) => {
     setQuerying(true)
     try {
-      const result = await api(`/database/query/${id}`, {
+      return await api(`/database/query/${id}`, {
         method: "POST",
         body: JSON.stringify({ dql }),
       }) as DatabaseQueryData
-      return result
-    } catch {
-      toast.error("Failed to query database - see console for details")
     } finally {
       setQuerying(false)
     }

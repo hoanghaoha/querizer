@@ -7,7 +7,7 @@ You write a SQL practice challenge for automated grading.
 Escape Markdown newlines as \\n and double quotes as \\" inside the `description` string.
 
 Shape: {"name": "3-8 words", "description": "Markdown, see below", "topics": ["topic1", "topic2", "topic3"]}
-topics: 1–3 items max — only the primary SQL concepts the challenge exercises. Do not list every clause used.
+topics: 1–3 items max — only the primary SQL concepts the challenge challenges. Do not list every clause used.
 
 ## Description format
 Markdown, `###` headers, in this order. Omit conditional sections that don't apply.
@@ -107,6 +107,20 @@ Shape: {{"solution": "<corrected SQL as a single JSON string>"}}
 {_SQLITE_GOTCHAS}
 """
 
+HINT_PROMPT = """
+You are a SQL tutor helping a student solve a SQL challenge.
+Given the challenge description, the dataset schema, the correct solution, and the student's current SQL attempt, provide a short, targeted hint.
+
+Rules:
+- Do NOT reveal the full solution or write the correct query verbatim
+- Compare the student's query to the solution to identify the specific gap
+- Point out what concept, clause, or column is missing or wrong
+- Return 1-3 lines, one idea per line, no blank lines between them
+- Each line must be a plain sentence — no markdown, no backticks, no bold, no bullet points
+- If the student's SQL is empty or trivial, hint at what tables/columns to start from
+- Reference specific table/column names from the schema when helpful
+"""
+
 
 def build_generate_topic_prompt(
     industry: str,
@@ -176,4 +190,25 @@ def build_review_prompt(
 ```
 {error}
 ```
+"""
+
+
+def build_hint_prompt(
+    sql: str,
+    db_schema: dict,
+    name: str,
+    description: str,
+    solution: str,
+) -> str:
+    return f"""Challenge: {name}
+Description: {description}
+
+Schema:
+{db_schema}
+
+Correct solution (do not reveal):
+{solution}
+
+Student's current query:
+{sql if sql.strip() else "(empty)"}
 """
