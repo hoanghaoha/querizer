@@ -39,6 +39,8 @@ export async function api(path: string, options: RequestInit = {}) {
     throw new Error(message)
   }
 
+  if (res.status === 204) return null
+
   const data = await res.json()
   console.log(`[api] ${res.status} ${url}`, { data })
   return data

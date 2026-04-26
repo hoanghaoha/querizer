@@ -46,7 +46,7 @@ async def get_database_endpoint(
 
 @router.post("/query/{database_id}")
 async def query_database_endpoint(
-    body: DatabaseQueryRequest, database_id: str, user_id: str = Depends(verify_token)
+    database_id: str, body: DatabaseQueryRequest, user_id: str = Depends(verify_token)
 ) -> DatabaseQueryResponse:
     database = get_database(database_id, user_id)
 
@@ -55,13 +55,13 @@ async def query_database_endpoint(
 
 @router.patch("/{database_id}")
 async def update_database_endpoint(
-    body: UpdateDatabaseRequest, database_id: str, user_id: str = Depends(verify_token)
-):
+    database_id: str, body: UpdateDatabaseRequest, user_id: str = Depends(verify_token)
+) -> DatabaseResponse:
     return update_database(body, database_id, user_id)
 
 
-@router.delete("/{database_id}")
+@router.delete("/{database_id}", status_code=204)
 async def delete_database_endpoint(
     database_id: str, user_id: str = Depends(verify_token)
-):
-    return delete_database(database_id, user_id)
+) -> None:
+    delete_database(database_id, user_id)

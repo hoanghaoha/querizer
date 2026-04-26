@@ -152,7 +152,7 @@ def update_database(body: UpdateDatabaseRequest, database_id: str, user_id: str)
     return DatabaseResponse.model_validate(result.data[0])
 
 
-def delete_database(database_id: str, user_id: str):
+def delete_database(database_id: str, user_id: str) -> None:
     result = (
         db.table("databases")
         .select("id, db_path")
@@ -170,5 +170,3 @@ def delete_database(database_id: str, user_id: str):
     ).execute()
 
     db.storage.from_("databases").remove([result.data["db_path"]])  # type: ignore
-
-    return {"deleted": True}

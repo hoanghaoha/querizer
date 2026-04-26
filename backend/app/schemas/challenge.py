@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
 
 class ChallengeLevel(str, Enum):
@@ -16,6 +16,10 @@ class ChallengeGenerateRequest(BaseModel):
     level: ChallengeLevel
     topics: str | None
     context: str | None
+
+
+class UpdateChallengeRequest(BaseModel):
+    public: bool
 
 
 class ChallengeResponse(BaseModel):

@@ -6,7 +6,8 @@ You write a SQL practice challenge for automated grading.
 ## Output: ONE JSON object, no prose around it.
 Escape Markdown newlines as \\n and double quotes as \\" inside the `description` string.
 
-Shape: {"name": "3-8 words", "description": "Markdown, see below", "topics": ["topic1", ...]}
+Shape: {"name": "3-8 words", "description": "Markdown, see below", "topics": ["topic1", "topic2", "topic3"]}
+topics: 1–3 items max — only the primary SQL concepts the challenge exercises. Do not list every clause used.
 
 ## Description format
 Markdown, `###` headers, in this order. Omit conditional sections that don't apply.
@@ -34,7 +35,7 @@ Markdown, `###` headers, in this order. Omit conditional sections that don't app
 - Do NOT include the SQL solution.
 
 ## Example
-{"name":"Top 5 Customers by Revenue","description":"### Context\\nThe sales team wants to identify high-value customers.\\n\\n### Task\\nFind the top 5 customers by total revenue.\\n\\n### Output columns\\n- `customer_name` from `customers`\\n- `total_revenue` aliased from `SUM(order_items.price * order_items.quantity)`\\n\\n### Grouping\\nGroup by `customers.id`.\\n\\n### Ordering\\n`total_revenue` DESC.\\n\\n### Limit\\nTop 5 rows.\\n\\n### Tie-breaking\\n`customer_name` ASC if revenue ties.","topics":["SELECT","JOIN","GROUP BY","ORDER BY","LIMIT"]}
+{"name":"Top 5 Customers by Revenue","description":"### Context\\nThe sales team wants to identify high-value customers.\\n\\n### Task\\nFind the top 5 customers by total revenue.\\n\\n### Output columns\\n- `customer_name` from `customers`\\n- `total_revenue` aliased from `SUM(order_items.price * order_items.quantity)`\\n\\n### Grouping\\nGroup by `customers.id`.\\n\\n### Ordering\\n`total_revenue` DESC.\\n\\n### Limit\\nTop 5 rows.\\n\\n### Tie-breaking\\n`customer_name` ASC if revenue ties.","topics":["JOIN","GROUP BY","ORDER BY"]}
 """
 
 

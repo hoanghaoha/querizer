@@ -9,22 +9,26 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Textarea } from "../ui/textarea"
 import { CHALLENGE_LEVEL } from "@/lib/const"
 import { Input } from "../ui/input"
-import { Challenge, ChallengeLevel } from "@/lib/types"
+import { ChallengeLevel } from "@/lib/types"
 import { useDatabases } from "@/hooks/database"
 import { useChallengeGenerate } from "@/hooks/challenge"
 import { useState } from "react"
 
-const GenerateChallengeButton = () => {
+const GenerateChallengeButton = ({ onSuccess }: { onSuccess?: () => void }) => {
+  const [open, setOpen] = useState(false)
   const [databaseId, setDatabaseId] = useState<string | null>(null)
   const [level, setLevel] = useState<ChallengeLevel>("Easy")
   const [topics, setTopics] = useState<string | null>(null)
   const [context, setContext] = useState<string | null>(null)
 
   const { databases } = useDatabases()
-  const { generate, generating } = useChallengeGenerate()
+  const { generate, generating } = useChallengeGenerate(() => {
+    onSuccess?.()
+    setOpen(false)
+  })
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <IconPlus />
