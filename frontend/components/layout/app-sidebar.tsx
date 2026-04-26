@@ -35,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="flex flex-col gap-6">
         <NavGroup label="Workspace" items={NAV_DATA.workspace} />
         <NavGroup label="Community" items={NAV_DATA.community} />
       </SidebarContent>
