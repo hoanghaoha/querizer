@@ -19,6 +19,7 @@ from app.services.challenge.functions import (
     submit_challenge,
     update_challenge,
 )
+from app.services.tracking import track_solution_viewed
 
 router = APIRouter()
 
@@ -69,6 +70,14 @@ async def submit_challenge_endpoint(
     user_id: str = Depends(verify_token),
 ):
     return submit_challenge(challenge_id, user_id, body)
+
+
+@router.post("/solution/{challenge_id}", status_code=204)
+async def solution_viewed_endpoint(
+    challenge_id: str,
+    user_id: str = Depends(verify_token),
+) -> None:
+    track_solution_viewed(user_id, challenge_id)
 
 
 @router.post("/hint/{challenge_id}")

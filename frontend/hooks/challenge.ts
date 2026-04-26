@@ -132,6 +132,17 @@ export function useChallengeHint() {
   return { hint, hinting }
 }
 
+export function useSolutionViewed() {
+  const trackSolution = async (id: string) => {
+    try {
+      await api(`/challenge/solution/${id}`, { method: "POST" })
+    } catch {
+      // non-critical, fail silently
+    }
+  }
+  return { trackSolution }
+}
+
 export function useChallengeGenerate(onSuccess?: () => void) {
   const [generating, setGenerating] = useState(false)
 

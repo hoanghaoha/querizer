@@ -11,6 +11,7 @@ class UserRequest(BaseModel):
 class UserPlan(str, Enum):
     FREE = "Free"
     PRO = "Pro"
+    MAX = "Max"
 
 
 class UserSqlLevel(str, Enum):

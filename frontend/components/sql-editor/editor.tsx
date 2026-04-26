@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Challenge, Database, DatabaseQueryData } from "@/lib/types"
 import { useDatabaseQuery } from "@/hooks/database"
-import { useChallengeHint, useChallengeSubmit } from "@/hooks/challenge"
+import { useChallengeHint, useChallengeSubmit, useSolutionViewed } from "@/hooks/challenge"
 import ResultDrawer from "./result-drawer"
 
 const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Challenge }) => {
@@ -31,6 +31,7 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
   const { query, querying } = useDatabaseQuery()
   const { hint, hinting } = useChallengeHint()
   const { submit, submitting } = useChallengeSubmit()
+  const { trackSolution } = useSolutionViewed()
 
   const runQuery = async () => {
     if (!dql.trim()) return
@@ -88,7 +89,7 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
                 <IconBulb className="text-yellow-300" />
                 {hinting ? "Hinting..." : "Hint"}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setDql(format(challenge.solution))}>
+              <Button size="sm" variant="outline" onClick={() => { setDql(format(challenge.solution)); trackSolution(challenge.id) }}>
                 <IconPuzzle className="text-purple-300" />
                 Solution
               </Button>

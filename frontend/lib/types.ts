@@ -1,4 +1,4 @@
-export type UserPlan = "Free" | "Pro"
+export type UserPlan = "Free" | "Pro" | "Max"
 
 export type User = {
   id: string

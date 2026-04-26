@@ -10,6 +10,7 @@ from app.schemas.database import (
     UpdateDatabaseRequest,
 )
 from app.services.database.utils import DatabaseGenerator
+from app.services.tracking import track_db_generated
 from app.supabase import db
 from app.config import settings
 
@@ -44,6 +45,7 @@ async def generate_database(
             }
         ).execute()
 
+        track_db_generated(user_id, generator.database_id)
         return DatabaseGenerateResponse.model_validate({"id": generator.database_id})
 
     except HTTPException:

@@ -1,4 +1,3 @@
-import json
 import uuid
 from fastapi import HTTPException
 from app.schemas.challenge import (
@@ -12,6 +11,11 @@ from app.schemas.challenge import (
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
 from app.services.challenge.utils import ChallengeGenerator
 from app.services.database.functions import get_database, query_database
+from app.services.tracking import (
+    track_challenge_generated,
+    track_hint_used,
+    track_submit,
+)
 from app.services.utils import str_json_to_dict
 from app.supabase import db
 from .utils import client
@@ -108,6 +112,8 @@ async def generate_challenge(
         .execute()
     )
 
+    challenge_id: str = row.data[0]["id"]  # type: ignore
+    track_challenge_generated(user_id, challenge_id)
     return ChallengeResponse.model_validate(row.data[0])
 
 
@@ -121,6 +127,8 @@ def submit_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitReque
     solved = user_result.columns == solution_result.columns and sorted(
         map(tuple, user_result.rows)
     ) == sorted(map(tuple, solution_result.rows))
+
+    track_submit(user_id, challenge_id, solved, challenge.level)
 
     return ChallengeSubmitResponse.model_validate(
         {"solved": solved, "result": user_result}
@@ -166,9 +174,7 @@ async def hint_challenge(
     )
 
     text: str = message.content[0].text  # type: ignore
-    try:
-        data = str_json_to_dict(text)
-        return ChallengeHintResponse.model_validate(data)
-    except (json.JSONDecodeError, ValueError):
-        print(f"[hint] AI returned non-JSON, falling back to raw text:\n{text}")
-        return ChallengeHintResponse(dql=text.strip())
+    data = str_json_to_dict(text)
+    track_hint_used(user_id, challenge_id)
+
+    return ChallengeHintResponse.model_validate(data)
