@@ -6,12 +6,13 @@ import DatabaseSettings from "@/components/database/database-settings"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDatabase } from "@/hooks/database"
 import { useParams } from "next/navigation"
+import PageLoading from "@/components/page-loading"
 
 const Page = () => {
   const { id } = useParams<{ id: string }>()
   const { database } = useDatabase(id)
 
-  if (!database) return <p>Loading...</p>
+  if (!database) return <PageLoading text="Loading database..." />
 
   return (
     <Tabs defaultValue="schema" className="min-h-screen">
