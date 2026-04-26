@@ -7,6 +7,7 @@ import { useChallenge } from "@/hooks/challenge"
 import { useParams } from "next/navigation"
 import SqlEditor from "@/components/sql-editor/editor"
 import PageLoading from "@/components/page-loading"
+import ChallengeContent from "@/components/challenges/challenge-content"
 
 const Page = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,15 +17,19 @@ const Page = () => {
   if (!challenge || !database) return <PageLoading text="Loading challenge..." />
 
   return (
-    <Tabs defaultValue="schema" className="min-h-screen">
-      <TabsList variant={"line"}>
+    <Tabs defaultValue="topic" className="h-dvh flex flex-col gap-0">
+      <TabsList variant={"line"} className="shrink-0">
+        <TabsTrigger value="topic">Topic</TabsTrigger>
         <TabsTrigger value="schema">Schema</TabsTrigger>
         <TabsTrigger value="editor">Assignment</TabsTrigger>
       </TabsList>
-      <TabsContent value="schema">
+      <TabsContent value="topic" className="flex-1 overflow-y-auto min-h-0">
+        <ChallengeContent challenge={challenge} />
+      </TabsContent>
+      <TabsContent value="schema" className="flex-1 overflow-y-auto min-h-0">
         <DatabaseSchemaVisualizer {...database} />
       </TabsContent>
-      <TabsContent value="editor">
+      <TabsContent value="editor" className="flex-1 overflow-y-auto min-h-0">
         <SqlEditor database={database} challenge={challenge} />
       </TabsContent>
     </Tabs>

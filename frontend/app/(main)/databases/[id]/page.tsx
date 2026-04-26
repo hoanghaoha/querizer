@@ -15,19 +15,19 @@ const Page = () => {
   if (!database) return <PageLoading text="Loading database..." />
 
   return (
-    <Tabs defaultValue="schema" className="min-h-screen">
-      <TabsList variant={"line"}>
+    <Tabs defaultValue="schema" className="h-dvh flex flex-col gap-0">
+      <TabsList variant={"line"} className="shrink-0">
         <TabsTrigger value="schema">Schema</TabsTrigger>
         <TabsTrigger value="editor">SQL Editor</TabsTrigger>
         <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
-      <TabsContent value="schema">
+      <TabsContent value="schema" className="flex-1 overflow-y-auto min-h-0">
         <DatabaseSchemaVisualizer {...database} />
       </TabsContent>
-      <TabsContent value="editor">
+      <TabsContent value="editor" className="flex-1 overflow-y-auto min-h-0">
         <SqlEditor database={database} />
       </TabsContent>
-      <TabsContent value="settings">
+      <TabsContent value="settings" className="flex-1 overflow-y-auto min-h-0">
         <DatabaseSettings {...database} />
       </TabsContent>
     </Tabs>
