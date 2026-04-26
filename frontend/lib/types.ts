@@ -74,3 +74,15 @@ export type DatabaseQueryData = {
   rows: unknown[][]
   columns: string[]
 }
+
+export type ChallengeLevel = "Beginner" | "Easy" | "Medium" | "Hard" | "Hell"
+
+export type Challenge = {
+  id: string
+  database_id: string
+  user_id: string
+  name: string
+  description: string
+  level: ChallengeLevel
+  topics: string
+}
