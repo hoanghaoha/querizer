@@ -45,3 +45,7 @@ class ChallengeSubmitRequest(BaseModel):
 class ChallengeSubmitResponse(BaseModel):
     solved: bool
     result: DatabaseQueryResponse
+
+
+class ChallengeHintResponse(BaseModel):
+    dql: str

@@ -120,8 +120,8 @@ export function useChallengeHint() {
       const data = await api(`/challenge/hint/${id}`, {
         method: "POST",
         body: JSON.stringify({ database_id: database_id, dql }),
-      }) as string
-      return data
+      }) as { dql: string }
+      return data.dql
     } catch {
       toast.error("Failed to get hint - see console for details")
     } finally {

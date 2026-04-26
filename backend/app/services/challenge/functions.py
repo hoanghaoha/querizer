@@ -1,7 +1,9 @@
+import json
 import uuid
 from fastapi import HTTPException
 from app.schemas.challenge import (
     ChallengeGenerateRequest,
+    ChallengeHintResponse,
     ChallengeResponse,
     ChallengeSubmitRequest,
     ChallengeSubmitResponse,
@@ -10,6 +12,7 @@ from app.schemas.challenge import (
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
 from app.services.challenge.utils import ChallengeGenerator
 from app.services.database.functions import get_database, query_database
+from app.services.utils import str_json_to_dict
 from app.supabase import db
 from .utils import client
 
@@ -124,12 +127,27 @@ def submit_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitReque
     )
 
 
-async def hint_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitRequest):
+async def hint_challenge(
+    challenge_id: str, user_id: str, body: ChallengeSubmitRequest
+) -> ChallengeHintResponse:
     challenge = get_challenge(challenge_id, user_id)
     database = get_database(body.database_id, user_id)
+
+    student_error: str | None = None
+    is_valid = False
+    if body.dql.strip():
+        try:
+            student_result = query_database(database.db_path, body.dql)
+            solution_result = query_database(database.db_path, challenge.solution)
+            is_valid = student_result.columns == solution_result.columns and sorted(
+                map(tuple, student_result.rows)
+            ) == sorted(map(tuple, solution_result.rows))
+        except HTTPException as e:
+            student_error = str(e.detail)
+
     message = await client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=256,
+        max_tokens=8192,
         system=HINT_PROMPT,
         messages=[
             {
@@ -140,9 +158,17 @@ async def hint_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitR
                     challenge.name,
                     challenge.description,
                     challenge.solution,
+                    is_valid=is_valid,
+                    student_error=student_error,
                 ),
             }
         ],
     )
 
-    return message.content[0].text.strip()  # type: ignore
+    text: str = message.content[0].text  # type: ignore
+    try:
+        data = str_json_to_dict(text)
+        return ChallengeHintResponse.model_validate(data)
+    except (json.JSONDecodeError, ValueError):
+        print(f"[hint] AI returned non-JSON, falling back to raw text:\n{text}")
+        return ChallengeHintResponse(dql=text.strip())

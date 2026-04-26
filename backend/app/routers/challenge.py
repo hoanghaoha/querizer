@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from app.auth import verify_token
 from app.schemas.challenge import (
     ChallengeGenerateRequest,
+    ChallengeHintResponse,
     ChallengeResponse,
     ChallengeSubmitRequest,
     UpdateChallengeRequest,
@@ -75,5 +76,5 @@ async def hint_challenge_endpoint(
     challenge_id: str,
     body: ChallengeSubmitRequest,
     user_id: str = Depends(verify_token),
-):
+) -> ChallengeHintResponse:
     return await hint_challenge(challenge_id, user_id, body)

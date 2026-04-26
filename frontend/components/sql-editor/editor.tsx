@@ -49,8 +49,7 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
     if (!challenge) return
     const text = await hint({ id: challenge.id, database_id: database.id, dql })
     if (!text) return
-    const commented = text.split("\n").map(l => "-- " + l).join("\n")
-    setDql(format(commented + "\n" + dql))
+    setDql(format(text))
   }
 
   const handleSubmit = async () => {
@@ -102,7 +101,7 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
             <Button
               size="sm"
               variant="outline"
-              onClick={() => setDql(dql.split("\n").filter(l => !l.startsWith("--")).join("\n"))}
+              onClick={() => setDql(dql.split("\n").filter(l => !l.trimStart().startsWith("--")).join("\n"))}
             >
               <IconBackspace />
               Comments

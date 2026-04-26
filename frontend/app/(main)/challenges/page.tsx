@@ -16,7 +16,6 @@ const Page = () => {
   const { challenges, refresh } = useChallenges()
   const { databases } = useDatabases()
   const [search, setSearch] = useState("")
-  const [level, setLevel] = useState<ChallengeLevel | "all">("all")
   const [databaseId, setDatabaseId] = useState<string | "all">("all")
   const [sort, setSort] = useState<"name-asc" | "name-desc" | "level-asc" | "level-desc">("level-asc")
 
@@ -26,9 +25,8 @@ const Page = () => {
       .filter(c => {
         const q = search.toLowerCase()
         const matchSearch = !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) || c.topics.some(t => t.toLowerCase().includes(q))
-        const matchLevel = level === "all" || c.level === level
         const matchDatabase = databaseId === "all" || c.database_id === databaseId
-        return matchSearch && matchLevel && matchDatabase
+        return matchSearch && matchDatabase
       })
       .sort((a, b) => {
         if (sort === "name-asc") return a.name.localeCompare(b.name)
@@ -36,7 +34,7 @@ const Page = () => {
         if (sort === "level-asc") return LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level)
         return LEVEL_ORDER.indexOf(b.level) - LEVEL_ORDER.indexOf(a.level)
       })
-  }, [challenges, search, level, databaseId, sort])
+  }, [challenges, search, databaseId, sort])
 
   return (
     <div className="flex flex-col gap-8 pt-10 mx-auto w-[60%]">
@@ -52,17 +50,6 @@ const Page = () => {
           onChange={e => setSearch(e.target.value)}
           className="flex-1"
         />
-        <Select value={level} onValueChange={v => setLevel(v as ChallengeLevel | "all")}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Level" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Levels</SelectItem>
-            {CHALLENGE_LEVEL.map(l => (
-              <SelectItem key={l.title} value={l.title}>{l.title}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Select value={databaseId} onValueChange={setDatabaseId}>
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Database" />
