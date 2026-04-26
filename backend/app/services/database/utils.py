@@ -1,6 +1,5 @@
 from typing import Any
 import uuid
-import json
 import random
 import sqlite3
 
@@ -11,7 +10,7 @@ from faker import Faker
 from app.config import settings
 from app.schemas.database import DatabaseGenerateRequest
 from .prompt import SYSTEM_PROMPT, build_user_prompt
-from ..utils import strip_markdown_json
+from ..utils import str_json_to_dict
 
 
 client = anthropic.AsyncAnthropic(api_key=settings.anthropic_key)
@@ -122,7 +121,7 @@ class DatabaseGenerator:
                 }
             ],
         )
-        return json.loads(strip_markdown_json(message.content[0].text))  # type: ignore
+        return str_json_to_dict(message.content[0].text)  # type: ignore
 
     def _sort_tables(self, schema: dict) -> dict:
         """

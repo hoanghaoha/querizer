@@ -1,5 +1,4 @@
 import sqlite3
-import json
 import anthropic
 
 from app.config import settings
@@ -11,7 +10,7 @@ from app.services.challenge.prompt import (
     build_generate_topic_prompt,
     build_review_prompt,
 )
-from app.services.utils import strip_markdown_json
+from app.services.utils import str_json_to_dict
 
 
 client = anthropic.AsyncAnthropic(api_key=settings.anthropic_key)
@@ -57,8 +56,7 @@ class ChallengeGenerator:
                 }
             ],
         )
-        message = strip_markdown_json(message.content[0].text)  # type: ignore
-        data = json.loads(message)
+        data = str_json_to_dict(message.content[0].text)  # type: ignore
         self.name = data["name"]
         self.description = data["description"]
         self.generated_topics: list[str] = data.get("topics", [])
@@ -77,7 +75,7 @@ class ChallengeGenerator:
                 }
             ],
         )
-        data = json.loads(strip_markdown_json(message.content[0].text))  # type: ignore
+        data = str_json_to_dict(message.content[0].text)  # type: ignore
         return data["solution"]
 
     async def review_solution(self, solution: str) -> dict:
@@ -100,7 +98,7 @@ class ChallengeGenerator:
                     }
                 ],
             )
-            data = json.loads(strip_markdown_json(message.content[0].text))  # type: ignore
+            data = str_json_to_dict(message.content[0].text)  # type: ignore
             solution = data["solution"]
             error = self._validate_on_sqlite(self.db_schema, solution)
             if error is None:

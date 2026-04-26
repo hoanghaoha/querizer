@@ -39,7 +39,7 @@ export type ColumnGenerator =
 
 export type DatabaseColumn = {
   name: string
-  type: "INTEGER" | "TEXT" | "REAL" | "BLOB" | "NUMERIC"
+  type: "INTEGER" | "TEXT" | "REAL"
   primary_key?: boolean
   nullable?: boolean
   unique?: boolean

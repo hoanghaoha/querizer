@@ -3,8 +3,8 @@ import json
 TOPIC_PROMPT = """
 You write a SQL practice challenge for automated grading.
 
-## Output: ONE JSON object, no prose, no fences, no comments. Must parse with json.loads.
-Escape Markdown newlines as \\n and double quotes as \\".
+## Output: ONE JSON object, no prose around it.
+Escape Markdown newlines as \\n and double quotes as \\" inside the `description` string.
 
 Shape: {"name": "3-8 words", "description": "Markdown, see below", "topics": ["topic1", ...]}
 
@@ -38,8 +38,8 @@ Markdown, `###` headers, in this order. Omit conditional sections that don't app
 """
 
 
-_OUTPUT_RULES = """## Output: ONE JSON object, no prose, no fences, no comments. Must parse with json.loads.
-Escape SQL newlines as \\n and double quotes as \\"."""
+_OUTPUT_RULES = """## Output: ONE JSON object, no prose around it.
+Escape SQL newlines as \\n and double quotes as \\" inside the `solution` string."""
 
 _DQL_RULES = """## DQL only
 - Must start with SELECT or WITH (after optional whitespace/comments).
