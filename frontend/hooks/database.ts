@@ -66,8 +66,8 @@ export function useDatabaseGenerate(onSuccess?: () => void) {
       })
       toast.success("Database generated")
       onSuccess?.()
-    } catch {
-      toast.error("Failed to generate database — see console for details")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to generate database")
     } finally {
       setGenerating(false)
     }

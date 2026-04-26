@@ -122,8 +122,8 @@ export function useChallengeHint() {
         body: JSON.stringify({ database_id: database_id, dql }),
       }) as { dql: string }
       return data.dql
-    } catch {
-      toast.error("Failed to get hint - see console for details")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to get hint")
     } finally {
       setHinting(false)
     }
@@ -161,8 +161,8 @@ export function useChallengeGenerate(onSuccess?: () => void) {
       toast.success("Challenge generated")
       onSuccess?.()
       return challenge
-    } catch {
-      toast.error("Failed to generate challenge — see console for details")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to generate challenge")
     } finally {
       setGenerating(false)
     }
