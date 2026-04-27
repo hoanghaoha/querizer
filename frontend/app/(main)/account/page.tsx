@@ -10,28 +10,30 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useUser, useUserUpdate } from "@/hooks/user"
 import { IconLoader2, IconSparkles } from "@tabler/icons-react"
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 const Page = () => {
   const { user, refresh } = useUser()
   const { update, updating } = useUserUpdate(refresh)
 
-  const [userName, setUserName] = useState(user?.name)
-  const [userExpertise, setUserExpertise] = useState(user?.expertise)
-  const [userSqlLevel, setUserSqlLevel] = useState(user?.sql_level)
+  const [name, setName] = useState(user?.name)
+  const [expertise, setExpertise] = useState(user?.expertise)
+  const [sqlLevel, setSqlLevel] = useState(user?.sql_level)
+  const router = useRouter()
 
-
-  const handleUpdate = async (e: React.SubmitEvent) => {
-    e.preventDefault()
-    await update({ name: userName, expertise: userExpertise, sql_level: userSqlLevel })
-  }
+  useEffect(() => {
+    setName(user?.name)
+    setExpertise(user?.expertise)
+    setSqlLevel(user?.sql_level)
+  }, [user])
 
   return (
     <div className="flex flex-col gap-10 px-20 pt-10 w-[60%] mx-auto">
       <div className="flex justify-between items-center">
         <p className="font-bold text-xl">Account Settings</p>
         <Button>
-          <IconSparkles className="text-emerald-600 animate-pulse" />
+          <IconSparkles className="text-emerald-600 animate-pulse" onClick={() => router.push("/plan")} />
           Upgrade Plan
         </Button>
       </div>
@@ -58,14 +60,17 @@ const Page = () => {
             <CardTitle>Your information</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="flex flex-col gap-4" id="user-form" onSubmit={handleUpdate}>
+            <form className="flex flex-col gap-4" id="user-form" onSubmit={async (e) => {
+              e.preventDefault()
+              await update({ name: name, expertise: expertise, sql_level: sqlLevel })
+            }}>
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
                   required
                   defaultValue={user?.name}
-                  onChange={e => setUserName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -73,12 +78,12 @@ const Page = () => {
                 <Input
                   id="expertise"
                   defaultValue={user?.expertise}
-                  onChange={e => setUserExpertise(e.target.value)}
+                  onChange={e => setExpertise(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
                 <Label>SQL Level</Label>
-                <Select value={userSqlLevel} onValueChange={setUserSqlLevel}>
+                <Select value={sqlLevel} onValueChange={setSqlLevel}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={user?.sql_level} />
                   </SelectTrigger>

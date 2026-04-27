@@ -9,13 +9,8 @@ async function getToken() {
 
 export async function api(path: string, options: RequestInit = {}) {
   const token = await getToken()
-  const url = `${BACKEND_URL}${path}`
 
-  console.log(`[api] ${options.method ?? "GET"} ${url}`, {
-    body: options.body ? JSON.parse(options.body as string) : undefined,
-  })
-
-  const res = await fetch(url, {
+  const res = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -24,24 +19,21 @@ export async function api(path: string, options: RequestInit = {}) {
     },
   })
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => null)
-    const detail = error?.detail
-    const message =
-      (Array.isArray(detail)
-        ? detail.map((e: { msg?: string }) => e.msg ?? JSON.stringify(e)).join(", ")
-        : detail) ??
-      error?.message ??
-      error?.error ??
-      `Request failed with status ${res.status}`
+  if (res.status === 401) {
+    await supabase.auth.signOut()
+    window.location.href = "/signin"
+    throw new Error("Session expired")
+  }
 
-    console.warn(`[api] ${res.status} ${url}`, error)
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    const detail = body?.detail
+    const message = Array.isArray(detail)
+      ? detail.map((e: { msg?: string }) => e.msg ?? JSON.stringify(e)).join(", ")
+      : detail ?? `Request failed with status ${res.status}`
     throw new Error(message)
   }
 
   if (res.status === 204) return null
-
-  const data = await res.json()
-  console.log(`[api] ${res.status} ${url}`, { data })
-  return data
+  return res.json()
 }

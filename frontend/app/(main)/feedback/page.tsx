@@ -5,25 +5,19 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { api } from "@/lib/api"
+import { useFeedback } from "@/hooks/user"
+import { FeedbackType } from "@/lib/types"
 import { IconLoader2 } from "@tabler/icons-react"
 import { useState } from "react"
-import { toast } from "sonner"
 
 const Page = () => {
-  const [type, setType] = useState("General")
-  const [msg, setMsg] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [type, setType] = useState<FeedbackType>("general")
+  const [message, setMessage] = useState("")
+  const { feedback, sending } = useFeedback(() => {
+    setType("general")
+    setMessage("")
+  })
 
-  const handleFeedback = async () => {
-    setLoading(true)
-    try {
-      api("/feedback", { method: "POST", body: JSON.stringify({ "type": type, "message": msg }) })
-    } finally {
-      toast.success("Your feedback has sent")
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="flex flex-col gap-10 px-20 pt-10 w-[60%] mx-auto">
@@ -36,13 +30,13 @@ const Page = () => {
             <CardTitle>What do you want us to do?</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="flex flex-col gap-4" id="user-form" onSubmit={e => {
-              e.preventDefault();
-              handleFeedback()
+            <form className="flex flex-col gap-4" id="user-form" onSubmit={async (e) => {
+              e.preventDefault()
+              await feedback({ type, message })
             }}>
               <div className="grid gap-2">
                 <Label>Type</Label>
-                <Select value={type} onValueChange={setType}>
+                <Select value={type} onValueChange={(e) => setType(e as FeedbackType)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={type} />
                   </SelectTrigger>
@@ -59,16 +53,16 @@ const Page = () => {
                 <Label htmlFor="message">Message</Label>
                 <Textarea
                   id="message"
-                  defaultValue={msg}
-                  onChange={e => setMsg(e.target.value)}
+                  defaultValue={message}
+                  onChange={e => setMessage(e.target.value)}
                 />
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2 items-end">
-            <Button type="submit" form="user-form" disabled={loading}>
-              {loading ? <IconLoader2 className="animate-spin" /> : ""}
-              Update
+            <Button type="submit" form="user-form" disabled={sending}>
+              {sending ? <IconLoader2 className="animate-spin" /> : ""}
+              Sending
             </Button>
           </CardFooter>
         </Card>

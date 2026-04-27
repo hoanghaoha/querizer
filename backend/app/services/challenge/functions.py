@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from fastapi import HTTPException
@@ -22,6 +23,8 @@ from app.services.tracking import (
 from app.services._utils import message_text, parse_llm_json
 from app.supabase import db
 from ._utils import client
+
+logger = logging.getLogger(__name__)
 
 
 async def generate_challenge(
@@ -48,29 +51,38 @@ async def generate_challenge(
         max_retries=3,
     )
 
-    generated = await generator.generate()
+    try:
+        generated = await generator.generate()
 
-    insert_result = (
-        db.table("challenges")
-        .insert(
-            {
-                "id": str(uuid.uuid4()),
-                "database_id": body.database_id,
-                "user_id": user_id,
-                "name": generator.name,
-                "description": generator.description,
-                "level": body.level,
-                "topics": generator.generated_topics,
-                "solution": generated["solution"],
-                "public": False,
-            }
+        insert_result = (
+            db.table("challenges")
+            .insert(
+                {
+                    "id": str(uuid.uuid4()),
+                    "database_id": body.database_id,
+                    "user_id": user_id,
+                    "name": generator.name,
+                    "description": generator.description,
+                    "level": body.level,
+                    "topics": generator.generated_topics,
+                    "solution": generated["solution"],
+                    "public": False,
+                }
+            )
+            .execute()
         )
-        .execute()
-    )
 
-    inserted = first(insert_result)
-    track_challenge_generated(user_id, inserted["id"])
-    return ChallengeResponse.model_validate(inserted)
+        inserted = first(insert_result)
+        track_challenge_generated(user_id, inserted["id"])
+        return ChallengeResponse.model_validate(inserted)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("challenge generation failed")
+        raise HTTPException(
+            status_code=500, detail="Challenge generation failed"
+        ) from e
 
 
 def get_challenges(
@@ -153,27 +165,31 @@ async def get_challenge_hint(
         except HTTPException as e:
             student_error = str(e.detail)
 
-    message = await client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=8192,
-        system=HINT_PROMPT,
-        messages=[
-            {
-                "role": "user",
-                "content": build_hint_prompt(
-                    body.dql,
-                    database.db_schema,
-                    challenge.name,
-                    challenge.description,
-                    challenge.solution,
-                    is_valid=is_valid,
-                    student_error=student_error,
-                ),
-            }
-        ],
-    )
+    try:
+        message = await client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=8192,
+            system=HINT_PROMPT,
+            messages=[
+                {
+                    "role": "user",
+                    "content": build_hint_prompt(
+                        body.dql,
+                        database.db_schema,
+                        challenge.name,
+                        challenge.description,
+                        challenge.solution,
+                        is_valid=is_valid,
+                        student_error=student_error,
+                    ),
+                }
+            ],
+        )
+        data = parse_llm_json(message_text(message))
+    except Exception as e:
+        logger.exception("cannot reach AI service")
+        raise HTTPException(status_code=503, detail="Cannot reach AI service") from e
 
-    data = parse_llm_json(message_text(message))
     track_hint_used(user_id, challenge_id)
 
     return ChallengeHintResponse.model_validate(data)

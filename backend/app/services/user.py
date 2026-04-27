@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+
+from app.services._supabase import first, one, require_first
 from app.supabase import db
 from app.schemas.user import (
     UserRequest,
@@ -7,9 +10,16 @@ from app.schemas.user import (
 
 
 def get_or_create_user(user_id: str, body: UserRequest) -> UserResponse:
-    upsert_result = (
+    user_result = db.table("users").select("*").single().execute()
+
+    user = one(user_result)
+
+    if user:
+        return UserResponse.model_validate(user)
+
+    insert_result = (
         db.table("users")
-        .upsert(
+        .insert(
             {
                 "id": user_id,
                 "email": body.email,
@@ -20,18 +30,17 @@ def get_or_create_user(user_id: str, body: UserRequest) -> UserResponse:
         .execute()
     )
 
-    return UserResponse.model_validate(upsert_result.data[0])
+    return UserResponse.model_validate(first(insert_result))
 
 
 def update_user(user_id: str, body: UserUpdateRequest) -> UserResponse:
     update_data = body.model_dump(exclude_none=True)
 
     if not update_data:
-        raise ValueError("No fields provided to update")
+        raise HTTPException(status_code=400, detail="No fields provided to update")
 
     update_result = db.table("users").update(update_data).eq("id", user_id).execute()
 
-    if not update_result.data:
-        raise ValueError(f"User id {user_id} not found")
+    user = require_first(update_result, "User")
 
-    return UserResponse.model_validate(update_result.data[0])
+    return UserResponse.model_validate(user)

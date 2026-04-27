@@ -1,3 +1,4 @@
+import logging
 import os
 import sqlite3
 import tempfile
@@ -16,6 +17,8 @@ from app.services.quota import check_quota
 from app.services.tracking import track_db_generated
 from app.supabase import db
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 BUCKET = "databases"
 
@@ -62,8 +65,9 @@ async def generate_database(
                 db.storage.from_(BUCKET).remove([f"{user_id}/{generator.database_id}"])
             except Exception:
                 pass
+        logger.exception("database generation failed")
         raise HTTPException(
-            status_code=500, detail=f"Database generation failed: {e}"
+            status_code=500, detail="Database generation failed"
         ) from e
 
     finally:
@@ -85,7 +89,7 @@ def get_database(database_id: str, user_id: str) -> DatabaseResponse:
         .single()
         .execute()
     )
-    return DatabaseResponse.model_validate(get_result.data)
+    return DatabaseResponse.model_validate(require_one(get_result, "Database"))
 
 
 def update_database(
@@ -133,7 +137,11 @@ def delete_database(database_id: str, user_id: str) -> None:
 
 
 def query_database(db_path: str, dql: str) -> DatabaseQueryResponse:
-    file_bytes = db.storage.from_(BUCKET).download(db_path)
+    try:
+        file_bytes = db.storage.from_(BUCKET).download(db_path)
+    except Exception as e:
+        logger.exception("cannot reach storage")
+        raise HTTPException(status_code=503, detail="Cannot reach storage") from e
 
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
         tmp.write(file_bytes)
@@ -162,6 +170,7 @@ def _ensure_bucket() -> None:
     try:
         names = [b.name for b in db.storage.list_buckets()]
         if BUCKET not in names:
+            logger.error("storage bucket missing")
             raise HTTPException(
                 status_code=503,
                 detail=f"Storage bucket '{BUCKET}' does not exist",
@@ -169,7 +178,8 @@ def _ensure_bucket() -> None:
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Cannot reach storage: {e}") from e
+        logger.exception("cannot reach storage")
+        raise HTTPException(status_code=503, detail="Cannot reach storage") from e
 
 
 def _upload_file(local_path: str, storage_path: str) -> None:
@@ -181,7 +191,7 @@ def _upload_file(local_path: str, storage_path: str) -> None:
                 file_options={"content-type": "application/octet-stream"},
             )
     except Exception as e:
+        logger.exception("cannot upload to storage")
         raise HTTPException(
-            status_code=503,
-            detail=f"Cannot upload to storage: {storage_path}, {e}",
+            status_code=503, detail="Cannot upload to storage"
         ) from e

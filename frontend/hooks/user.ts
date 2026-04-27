@@ -2,10 +2,14 @@
 
 import { api } from "@/lib/api"
 import { supabase } from "@/lib/supabase"
-import { User } from "@/lib/types"
+import { Feedback, User } from "@/lib/types"
 import { useCallback, useEffect, useState } from "react"
 import type { User as AuthUser } from '@supabase/supabase-js'
 import { toast } from "sonner"
+
+function errorMessage(e: unknown, fallback: string) {
+  return e instanceof Error ? e.message : fallback
+}
 
 export function useAuth() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
@@ -40,8 +44,8 @@ export function useUser() {
         })
       })
       setUser(user)
-    } catch {
-      toast.error("Error when get user - see console for details")
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to load user"))
     } finally {
       setLoading(false)
     }
@@ -50,7 +54,6 @@ export function useUser() {
   useEffect(() => { load() }, [load])
 
   return { user, loading, refresh: load }
-
 }
 
 export function useUserUpdate(onSuccess?: () => void) {
@@ -70,12 +73,34 @@ export function useUserUpdate(onSuccess?: () => void) {
       })
       toast.success("User updated")
       onSuccess?.()
-    } catch {
-      toast.error("Failed to update user — see console for details")
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to update user"))
     } finally {
       setUpdating(false)
     }
   }
 
   return { update, updating }
+}
+
+export function useFeedback(onSuccess?: () => void) {
+  const [sending, setSending] = useState(false)
+
+  const feedback = async ({ type, message }: Feedback) => {
+    setSending(true)
+    try {
+      await api("/feedback", {
+        method: "POST",
+        body: JSON.stringify({ type, message })
+      })
+      toast.success("Feedback sent")
+      onSuccess?.()
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to send feedback"))
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return { feedback, sending }
 }

@@ -5,6 +5,10 @@ import { api } from "@/lib/api"
 import { toast } from "sonner"
 import { Database, DatabaseQueryData } from "@/lib/types"
 
+function errorMessage(e: unknown, fallback: string) {
+  return e instanceof Error ? e.message : fallback
+}
+
 export function useDatabases() {
   const [loading, setLoading] = useState(false)
   const [databases, setDatabases] = useState<Database[] | null>(null)
@@ -14,8 +18,8 @@ export function useDatabases() {
     try {
       const databases = await api("/database/databases", { method: "GET" }) as Database[]
       setDatabases(databases)
-    } catch {
-      toast.error("Fail to get databases - see console for details")
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to load databases"))
     } finally {
       setLoading(false)
     }
@@ -24,7 +28,6 @@ export function useDatabases() {
   useEffect(() => { load() }, [load])
 
   return { databases, loading, refresh: load }
-
 }
 
 export function useDatabase(id: string) {
@@ -37,8 +40,8 @@ export function useDatabase(id: string) {
     try {
       const database = await api(`/database/${id}`, { method: "GET" }) as Database
       setDatabase(database)
-    } catch {
-      toast.error("Fail to get database - see console for details")
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to load database"))
     } finally {
       setLoading(false)
     }
@@ -67,7 +70,7 @@ export function useDatabaseGenerate(onSuccess?: () => void) {
       toast.success("Database generated")
       onSuccess?.()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to generate database")
+      toast.error(errorMessage(e, "Failed to generate database"))
     } finally {
       setGenerating(false)
     }
@@ -86,6 +89,9 @@ export function useDatabaseQuery() {
         method: "POST",
         body: JSON.stringify({ dql }),
       }) as DatabaseQueryData
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to run query"))
+      throw e
     } finally {
       setQuerying(false)
     }
@@ -100,15 +106,11 @@ export function useDatabaseUpdate(onSuccess?: () => void) {
   const update = async ({ id, name, description }: { id: string, name?: string, description?: string }) => {
     setUpdating(true)
     try {
-      const result = await api(`/database/${id}`, { method: "PATCH", body: JSON.stringify({ name, description }) }) as Database
+      await api(`/database/${id}`, { method: "PATCH", body: JSON.stringify({ name, description }) }) as Database
+      toast.success("Database updated")
       onSuccess?.()
-      if (result) {
-        toast.success("Database updated.")
-      } else {
-        toast.error("Database update failed - see console for details")
-      }
-    } catch {
-      toast.error("Database update failed - see console for details")
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to update database"))
     } finally {
       setUpdating(false)
     }
@@ -123,11 +125,11 @@ export function useDatabaseDelete(onSuccess?: () => void) {
   const deleteDatabase = async ({ id }: { id: string }) => {
     setDeleting(true)
     try {
-      api(`/database/${id}`, { method: "DELETE" })
+      await api(`/database/${id}`, { method: "DELETE" })
+      toast.success("Database deleted")
       onSuccess?.()
-      toast.success("Database deleted.")
-    } catch {
-      toast.error("Database delete failed - see console for details")
+    } catch (e) {
+      toast.error(errorMessage(e, "Failed to delete database"))
     } finally {
       setDeleting(false)
     }

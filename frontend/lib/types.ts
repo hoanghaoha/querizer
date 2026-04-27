@@ -88,3 +88,10 @@ export type Challenge = {
   solution: string
   public: boolean
 }
+
+export type FeedbackType = "general" | "features" | "bug"
+
+export type Feedback = {
+  type: FeedbackType
+  message: string
+}
