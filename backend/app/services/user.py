@@ -11,12 +11,12 @@ from app.schemas.user import (
 
 
 def get_or_create_user(user_id: str, body: UserRequest) -> UserResponse:
-    user_result = db.table("users").select("*").single().execute()
+    user_result = (
+        db.table("users").select("*").eq("id", user_id).maybe_single().execute()
+    )
 
-    user = one(user_result)
-
-    if user:
-        return UserResponse.model_validate(user)
+    if user_result:
+        return UserResponse.model_validate(one(user_result))
 
     insert_result = (
         db.table("users")
