@@ -38,7 +38,7 @@ const Page = () => {
     <div className="flex flex-col gap-8 pt-10 mx-auto w-[60%]">
       <div className="flex justify-between items-center">
         <p className="font-bold text-xl">My Databases</p>
-        <GenerateDatabaseButton onClick={refresh} />
+        <GenerateDatabaseButton onSuccess={refresh} />
       </div>
 
       <div className="flex gap-2">
