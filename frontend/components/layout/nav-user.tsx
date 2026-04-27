@@ -83,8 +83,8 @@ export function NavUser({ items }: { items: { title: string, url: string, icon: 
               ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => {
-              signOut()
+            <DropdownMenuItem onClick={async () => {
+              await signOut()
               router.push("/")
             }}>
               <IconLogout
