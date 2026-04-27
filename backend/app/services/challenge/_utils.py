@@ -10,7 +10,7 @@ from app.services.challenge.prompt import (
     build_generate_topic_prompt,
     build_review_prompt,
 )
-from app.services.utils import str_json_to_dict
+from app.services._utils import message_text, parse_llm_json
 
 
 client = anthropic.AsyncAnthropic(api_key=settings.anthropic_key)
@@ -56,7 +56,7 @@ class ChallengeGenerator:
                 }
             ],
         )
-        data = str_json_to_dict(message.content[0].text)  # type: ignore
+        data = parse_llm_json(message_text(message))
         self.name = data["name"]
         self.description = data["description"]
         self.generated_topics: list[str] = data.get("topics", [])
@@ -75,7 +75,7 @@ class ChallengeGenerator:
                 }
             ],
         )
-        data = str_json_to_dict(message.content[0].text)  # type: ignore
+        data = parse_llm_json(message_text(message))
         return data["solution"]
 
     async def review_solution(self, solution: str) -> dict:
@@ -98,7 +98,7 @@ class ChallengeGenerator:
                     }
                 ],
             )
-            data = str_json_to_dict(message.content[0].text)  # type: ignore
+            data = parse_llm_json(message_text(message))
             solution = data["solution"]
             error = self._validate_on_sqlite(self.db_schema, solution)
             if error is None:

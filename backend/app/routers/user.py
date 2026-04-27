@@ -1,19 +1,16 @@
 from fastapi import APIRouter, Depends
 from app.auth import verify_token
 from app.schemas.user import UserRequest, UserResponse, UserUpdateRequest
-from app.services.user import create_or_get_user, update_user
+from app.services.user import get_or_create_user, update_user
 
 router = APIRouter()
 
 
 @router.post("")
-def user_endpoint(
+def get_or_create_user_endpoint(
     body: UserRequest, user_id: str = Depends(verify_token)
 ) -> UserResponse:
-    return create_or_get_user(
-        user_id,
-        body,
-    )
+    return get_or_create_user(user_id, body)
 
 
 @router.post("/update")

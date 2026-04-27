@@ -20,7 +20,7 @@ class ChallengeGenerateRequest(BaseModel):
     context: str | None
 
 
-class UpdateChallengeRequest(BaseModel):
+class ChallengeUpdateRequest(BaseModel):
     public: bool
 
 

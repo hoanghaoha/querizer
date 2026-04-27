@@ -59,6 +59,6 @@ class DatabaseQueryResponse(BaseModel):
     columns: list[str]
 
 
-class UpdateDatabaseRequest(BaseModel):
+class DatabaseUpdateRequest(BaseModel):
     name: str
     description: str

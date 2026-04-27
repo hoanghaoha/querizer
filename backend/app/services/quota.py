@@ -1,15 +1,15 @@
 from datetime import datetime, timezone
 from typing import Literal
 
-from dateutil.relativedelta import relativedelta
 from fastapi import HTTPException
 
+from app.services._supabase import first, one
 from app.supabase import db
 
 PLAN_LIMITS: dict[str, dict[str, int | None]] = {
     "Free": {"db": 2, "challenge": 10, "hint": 30},
-    "Pro":  {"db": 10, "challenge": 30, "hint": 90},
-    "Max":  {"db": None, "challenge": None, "hint": None},
+    "Pro": {"db": 10, "challenge": 30, "hint": 90},
+    "Max": {"db": None, "challenge": None, "hint": None},
 }
 
 QuotaAction = Literal["db", "challenge", "hint"]
@@ -28,10 +28,8 @@ ACTION_LABEL: dict[QuotaAction, str] = {
 
 
 def check_quota(user_id: str, action: QuotaAction) -> None:
-    user_result = (
-        db.table("users").select("plan").eq("id", user_id).single().execute()
-    )
-    plan: str = user_result.data["plan"] if user_result.data else "Free"
+    user_result = db.table("users").select("plan").eq("id", user_id).single().execute()
+    plan: str = one(user_result)["plan"] if user_result.data else "Free"
     limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["Free"])[action]
 
     if limit is None:
@@ -48,7 +46,7 @@ def check_quota(user_id: str, action: QuotaAction) -> None:
     if not usage_result.data:
         return
 
-    row = usage_result.data[0]
+    row = first(usage_result)
     reset_at = datetime.fromisoformat(row["reset_at"])
 
     if reset_at <= now:
@@ -58,5 +56,5 @@ def check_quota(user_id: str, action: QuotaAction) -> None:
     if used >= limit:
         raise HTTPException(
             status_code=429,
-            detail=f"Monthly limit reached: {limit} {ACTION_LABEL[action]} on the {plan} plan.",
+            detail=f"Monthly limit reached: {limit} {ACTION_LABEL[action]} on the {plan} plan",
         )

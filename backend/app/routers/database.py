@@ -6,16 +6,16 @@ from app.schemas.database import (
     DatabaseQueryRequest,
     DatabaseQueryResponse,
     DatabaseResponse,
-    UpdateDatabaseRequest,
+    DatabaseUpdateRequest,
 )
 from app.services.database.functions import (
     delete_database,
     generate_database,
     get_database,
+    get_databases,
     query_database,
     update_database,
 )
-from app.supabase import db
 
 
 router = APIRouter()
@@ -32,8 +32,7 @@ async def generate_database_endpoint(
 async def get_databases_endpoint(
     user_id: str = Depends(verify_token),
 ) -> list[DatabaseResponse]:
-    result = db.table("databases").select("*").eq("user_id", user_id).execute()
-    return [DatabaseResponse.model_validate(row) for row in result.data]
+    return get_databases(user_id)
 
 
 @router.get("/{database_id}")
@@ -44,20 +43,11 @@ async def get_database_endpoint(
     return get_database(database_id, user_id)
 
 
-@router.post("/query/{database_id}")
-async def query_database_endpoint(
-    database_id: str, body: DatabaseQueryRequest, user_id: str = Depends(verify_token)
-) -> DatabaseQueryResponse:
-    database = get_database(database_id, user_id)
-
-    return query_database(database.db_path, body.dql)
-
-
 @router.patch("/{database_id}")
 async def update_database_endpoint(
-    database_id: str, body: UpdateDatabaseRequest, user_id: str = Depends(verify_token)
+    database_id: str, body: DatabaseUpdateRequest, user_id: str = Depends(verify_token)
 ) -> DatabaseResponse:
-    return update_database(body, database_id, user_id)
+    return update_database(database_id, user_id, body)
 
 
 @router.delete("/{database_id}", status_code=204)
@@ -65,3 +55,12 @@ async def delete_database_endpoint(
     database_id: str, user_id: str = Depends(verify_token)
 ) -> None:
     delete_database(database_id, user_id)
+
+
+@router.post("/query/{database_id}")
+async def query_database_endpoint(
+    database_id: str, body: DatabaseQueryRequest, user_id: str = Depends(verify_token)
+) -> DatabaseQueryResponse:
+    database = get_database(database_id, user_id)
+
+    return query_database(database.db_path, body.dql)

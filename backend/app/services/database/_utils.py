@@ -10,7 +10,7 @@ from faker import Faker
 from app.config import settings
 from app.schemas.database import DatabaseGenerateRequest
 from .prompt import SYSTEM_PROMPT, build_user_prompt
-from ..utils import str_json_to_dict
+from .._utils import message_text, parse_llm_json
 
 
 client = anthropic.AsyncAnthropic(api_key=settings.anthropic_key)
@@ -121,7 +121,8 @@ class DatabaseGenerator:
                 }
             ],
         )
-        return str_json_to_dict(message.content[0].text)  # type: ignore
+
+        return parse_llm_json(message_text(message))
 
     def _sort_tables(self, schema: dict) -> dict:
         """

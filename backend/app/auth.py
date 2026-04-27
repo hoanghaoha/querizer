@@ -41,11 +41,11 @@ def verify_token(authorization: str = Header(...)) -> str:
             raise JWTError("No valid key found")
 
     except JWTError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Invalid token: {e}") from e
 
     user_id: str = str(payload.get("sub"))
 
     if not user_id:
-        raise HTTPException(status_code=401, detail="Token missing User Id")
+        raise HTTPException(status_code=401, detail="Token missing user ID")
 
     return user_id

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends
 
 from app.auth import verify_token
@@ -8,14 +6,14 @@ from app.schemas.challenge import (
     ChallengeHintResponse,
     ChallengeResponse,
     ChallengeSubmitRequest,
-    UpdateChallengeRequest,
+    ChallengeUpdateRequest,
 )
 from app.services.challenge.functions import (
     delete_challenge,
     generate_challenge,
     get_challenge,
+    get_challenge_hint,
     get_challenges,
-    hint_challenge,
     submit_challenge,
     update_challenge,
 )
@@ -33,7 +31,7 @@ async def generate_challenge_endpoint(
 
 @router.get("/challenges")
 async def get_challenges_endpoint(
-    database_id: Optional[str] = None,
+    database_id: str | None = None,
     user_id: str = Depends(verify_token),
 ) -> list[ChallengeResponse]:
     return get_challenges(user_id, database_id)
@@ -50,7 +48,7 @@ async def get_challenge_endpoint(
 @router.patch("/{challenge_id}")
 async def update_challenge_endpoint(
     challenge_id: str,
-    body: UpdateChallengeRequest,
+    body: ChallengeUpdateRequest,
     user_id: str = Depends(verify_token),
 ) -> ChallengeResponse:
     return update_challenge(challenge_id, user_id, body)
@@ -81,9 +79,9 @@ async def solution_viewed_endpoint(
 
 
 @router.post("/hint/{challenge_id}")
-async def hint_challenge_endpoint(
+async def get_challenge_hint_endpoint(
     challenge_id: str,
     body: ChallengeSubmitRequest,
     user_id: str = Depends(verify_token),
 ) -> ChallengeHintResponse:
-    return await hint_challenge(challenge_id, user_id, body)
+    return await get_challenge_hint(challenge_id, user_id, body)

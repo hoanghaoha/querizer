@@ -1,4 +1,5 @@
 import uuid
+
 from fastapi import HTTPException
 from app.schemas.challenge import (
     ChallengeGenerateRequest,
@@ -6,72 +7,28 @@ from app.schemas.challenge import (
     ChallengeResponse,
     ChallengeSubmitRequest,
     ChallengeSubmitResponse,
-    UpdateChallengeRequest,
+    ChallengeUpdateRequest,
 )
+from app.services._supabase import first, require_first, require_one
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
-from app.services.challenge.utils import ChallengeGenerator
+from app.services.challenge._utils import ChallengeGenerator
 from app.services.database.functions import get_database, query_database
 from app.services.quota import check_quota
 from app.services.tracking import (
     track_challenge_generated,
     track_hint_used,
-    track_submit,
+    track_submission,
 )
-from app.services.utils import str_json_to_dict
+from app.services._utils import message_text, parse_llm_json
 from app.supabase import db
-from .utils import client
-
-
-def get_challenges(
-    user_id: str, database_id: str | None = None
-) -> list[ChallengeResponse]:
-    query = db.table("challenges").select("*").eq("user_id", user_id)
-    if database_id:
-        query = query.eq("database_id", database_id)
-    result = query.execute()
-    return [ChallengeResponse.model_validate(row) for row in result.data]
-
-
-def get_challenge(challenge_id: str, user_id: str) -> ChallengeResponse:
-    result = (
-        db.table("challenges")
-        .select("*")
-        .eq("id", challenge_id)
-        .eq("user_id", user_id)
-        .single()
-        .execute()
-    )
-    if not result.data:
-        raise HTTPException(status_code=404, detail="Challenge not found")
-    return ChallengeResponse.model_validate(result.data)
-
-
-def update_challenge(
-    challenge_id: str, user_id: str, body: UpdateChallengeRequest
-) -> ChallengeResponse:
-    result = (
-        db.table("challenges")
-        .update({"public": body.public})
-        .eq("id", challenge_id)
-        .eq("user_id", user_id)
-        .execute()
-    )
-    if not result.data:
-        raise HTTPException(status_code=404, detail="Challenge not found")
-    return ChallengeResponse.model_validate(result.data[0])
-
-
-def delete_challenge(challenge_id: str, user_id: str) -> None:
-    db.table("challenges").delete().eq("id", challenge_id).eq(
-        "user_id", user_id
-    ).execute()
+from ._utils import client
 
 
 async def generate_challenge(
     user_id: str, body: ChallengeGenerateRequest
 ) -> ChallengeResponse:
     check_quota(user_id, "challenge")
-    result = (
+    db_result = (
         db.table("databases")
         .select("industry,db_schema")
         .eq("id", body.database_id)
@@ -80,23 +37,20 @@ async def generate_challenge(
         .execute()
     )
 
-    database = result.data
-
-    if not database:
-        raise HTTPException(status_code=404, detail="Database not found")
+    database = require_one(db_result, "Database")
 
     generator = ChallengeGenerator(
-        industry=database["industry"],  # type: ignore
-        db_schema=database["db_schema"],  # type: ignore
+        industry=database["industry"],
+        db_schema=database["db_schema"],
         topics=body.topics or "",
         level=body.level,
         context=body.context or "",
         max_retries=3,
     )
 
-    result = await generator.generate()
+    generated = await generator.generate()
 
-    row = (
+    insert_result = (
         db.table("challenges")
         .insert(
             {
@@ -107,19 +61,62 @@ async def generate_challenge(
                 "description": generator.description,
                 "level": body.level,
                 "topics": generator.generated_topics,
-                "solution": result["solution"],
+                "solution": generated["solution"],
                 "public": False,
             }
         )
         .execute()
     )
 
-    challenge_id: str = row.data[0]["id"]  # type: ignore
-    track_challenge_generated(user_id, challenge_id)
-    return ChallengeResponse.model_validate(row.data[0])
+    inserted = first(insert_result)
+    track_challenge_generated(user_id, inserted["id"])
+    return ChallengeResponse.model_validate(inserted)
 
 
-def submit_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitRequest):
+def get_challenges(
+    user_id: str, database_id: str | None = None
+) -> list[ChallengeResponse]:
+    query = db.table("challenges").select("*").eq("user_id", user_id)
+    if database_id:
+        query = query.eq("database_id", database_id)
+    list_result = query.execute()
+    return [ChallengeResponse.model_validate(row) for row in list_result.data]
+
+
+def get_challenge(challenge_id: str, user_id: str) -> ChallengeResponse:
+    get_result = (
+        db.table("challenges")
+        .select("*")
+        .eq("id", challenge_id)
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+    return ChallengeResponse.model_validate(require_one(get_result, "Challenge"))
+
+
+def update_challenge(
+    challenge_id: str, user_id: str, body: ChallengeUpdateRequest
+) -> ChallengeResponse:
+    update_result = (
+        db.table("challenges")
+        .update({"public": body.public})
+        .eq("id", challenge_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return ChallengeResponse.model_validate(require_first(update_result, "Challenge"))
+
+
+def delete_challenge(challenge_id: str, user_id: str) -> None:
+    db.table("challenges").delete().eq("id", challenge_id).eq(
+        "user_id", user_id
+    ).execute()
+
+
+def submit_challenge(
+    challenge_id: str, user_id: str, body: ChallengeSubmitRequest
+) -> ChallengeSubmitResponse:
     challenge = get_challenge(challenge_id, user_id)
     database = get_database(body.database_id, user_id)
 
@@ -130,14 +127,14 @@ def submit_challenge(challenge_id: str, user_id: str, body: ChallengeSubmitReque
         map(tuple, user_result.rows)
     ) == sorted(map(tuple, solution_result.rows))
 
-    track_submit(user_id, challenge_id, solved, challenge.level)
+    track_submission(user_id, challenge_id, solved, challenge.level)
 
     return ChallengeSubmitResponse.model_validate(
         {"solved": solved, "result": user_result}
     )
 
 
-async def hint_challenge(
+async def get_challenge_hint(
     challenge_id: str, user_id: str, body: ChallengeSubmitRequest
 ) -> ChallengeHintResponse:
     check_quota(user_id, "hint")
@@ -176,8 +173,7 @@ async def hint_challenge(
         ],
     )
 
-    text: str = message.content[0].text  # type: ignore
-    data = str_json_to_dict(text)
+    data = parse_llm_json(message_text(message))
     track_hint_used(user_id, challenge_id)
 
     return ChallengeHintResponse.model_validate(data)

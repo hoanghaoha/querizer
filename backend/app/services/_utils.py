@@ -1,8 +1,13 @@
 import json
 import re
+from typing import Any
 
 
-def str_json_to_dict(raw: str) -> dict:
+def message_text(message: Any) -> str:
+    return message.content[0].text
+
+
+def parse_llm_json(raw: str) -> dict:
     """Extract a JSON object from an LLM response and parse it to a dict.
 
     Handles:
