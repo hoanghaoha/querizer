@@ -1,6 +1,11 @@
 import json
 import re
+from datetime import datetime, timezone
 from typing import Any
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
 def message_text(message: Any) -> str:

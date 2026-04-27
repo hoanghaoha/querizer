@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, timezone
 
 from app.services._supabase import first
+from app.services._utils import now_iso
 from app.supabase import db
 
 LEVEL_BASE_SCORE = {
@@ -29,7 +30,7 @@ def track_hint_used(user_id: str, challenge_id: str):
         db.table("challenge_attempts").update(
             {
                 "n_hints": attempt["n_hints"] + 1,
-                "updated_at": _now_iso(),
+                "updated_at": now_iso(),
             }
         ).eq("id", attempt["id"]).execute()
     else:
@@ -42,6 +43,7 @@ def track_hint_used(user_id: str, challenge_id: str):
                 "n_hints": 1,
                 "solution_used": False,
                 "score": 0,
+                "created_at": now_iso(),
             }
         ).execute()
 
@@ -56,7 +58,7 @@ def track_solution_viewed(user_id: str, challenge_id: str):
         db.table("challenge_attempts").update(
             {
                 "solution_used": True,
-                "updated_at": _now_iso(),
+                "updated_at": now_iso(),
             }
         ).eq("id", attempt["id"]).execute()
     else:
@@ -69,6 +71,7 @@ def track_solution_viewed(user_id: str, challenge_id: str):
                 "n_hints": 0,
                 "solution_used": True,
                 "score": 0,
+                "created_at": now_iso(),
             }
         ).execute()
 
@@ -88,7 +91,7 @@ def track_submission(user_id: str, challenge_id: str, solved: bool, level: str):
                 {
                     "solved": True,
                     "score": score,
-                    "updated_at": _now_iso(),
+                    "updated_at": now_iso(),
                 }
             ).eq("id", attempt["id"]).execute()
     else:
@@ -102,6 +105,7 @@ def track_submission(user_id: str, challenge_id: str, solved: bool, level: str):
                 "n_hints": 0,
                 "solution_used": False,
                 "score": score,
+                "created_at": now_iso(),
             }
         ).execute()
 
@@ -123,6 +127,7 @@ def _log_action(user_id: str, action_type: str, metadata: dict):
             "user_id": user_id,
             "action_type": action_type,
             "metadata": metadata,
+            "created_at": now_iso(),
         }
     ).execute()
 
@@ -160,6 +165,7 @@ def _increment_usage(user_id: str, **fields: int) -> None:
                 "id": str(uuid.uuid4()),
                 "user_id": user_id,
                 "reset_at": _cycle_reset_at(),
+                "created_at": now_iso(),
                 **fields,
             }
         ).execute()
@@ -174,7 +180,3 @@ def _get_attempt(user_id: str, challenge_id: str) -> dict | None:
         .execute()
     )
     return first(attempt_result) if attempt_result.data else None
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()

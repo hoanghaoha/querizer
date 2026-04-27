@@ -11,6 +11,7 @@ from app.schemas.challenge import (
     ChallengeUpdateRequest,
 )
 from app.services._supabase import first, require_first, require_one
+from app.services._utils import now_iso
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
 from app.services.challenge._utils import ChallengeGenerator
 from app.services.database.functions import get_database, query_database
@@ -67,6 +68,7 @@ async def generate_challenge(
                     "topics": generator.generated_topics,
                     "solution": generated["solution"],
                     "public": False,
+                    "created_at": now_iso(),
                 }
             )
             .execute()

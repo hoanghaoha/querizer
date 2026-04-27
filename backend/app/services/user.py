@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 
 from app.services._supabase import first, one, require_first
+from app.services._utils import now_iso
 from app.supabase import db
 from app.schemas.user import (
     UserRequest,
@@ -25,6 +26,7 @@ def get_or_create_user(user_id: str, body: UserRequest) -> UserResponse:
                 "email": body.email,
                 "name": body.name,
                 "avatar_url": body.avatar_url,
+                "created_at": now_iso(),
             }
         )
         .execute()

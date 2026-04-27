@@ -2,7 +2,6 @@ import logging
 import os
 import sqlite3
 import tempfile
-
 from fastapi import HTTPException
 from app.schemas.database import (
     DatabaseGenerateRequest,
@@ -12,6 +11,7 @@ from app.schemas.database import (
     DatabaseUpdateRequest,
 )
 from app.services._supabase import require_one
+from app.services._utils import now_iso
 from app.services.database._utils import DatabaseGenerator
 from app.services.quota import check_quota
 from app.services.tracking import track_db_generated
@@ -51,6 +51,7 @@ async def generate_database(
                 "row_count": generator.row_count,
                 "db_schema": generator.schema,
                 "db_path": storage_path,
+                "created_at": now_iso(),
             }
         ).execute()
 
