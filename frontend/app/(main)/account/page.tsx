@@ -69,7 +69,7 @@ const Page = () => {
                 <Input
                   id="name"
                   required
-                  defaultValue={user?.name}
+                  value={name ?? ""}
                   onChange={e => setName(e.target.value)}
                 />
               </div>
@@ -77,7 +77,7 @@ const Page = () => {
                 <Label htmlFor="expertise">Expertise</Label>
                 <Input
                   id="expertise"
-                  defaultValue={user?.expertise}
+                  value={expertise ?? ""}
                   onChange={e => setExpertise(e.target.value)}
                 />
               </div>

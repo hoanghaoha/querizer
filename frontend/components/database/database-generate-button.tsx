@@ -23,11 +23,6 @@ const GenerateDatabaseButton = ({ onSuccess }: { onSuccess?: () => void }) => {
     onSuccess?.()
   })
 
-  const handleGenerate = async (e: React.SubmitEvent) => {
-    e.preventDefault()
-    await generate({ name, industry, size, description })
-  }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -45,7 +40,10 @@ const GenerateDatabaseButton = ({ onSuccess }: { onSuccess?: () => void }) => {
             Tell us about your database that you want.
           </DialogDescription>
         </DialogHeader>
-        <form id="generate-database-form" onSubmit={handleGenerate} className="flex flex-col gap-4">
+        <form id="generate-database-form" onSubmit={async (e) => {
+          e.preventDefault()
+          await generate({ name, industry, size, description })
+        }} className="flex flex-col gap-4">
           <FieldGroup>
             <Field>
               <Label htmlFor="name">Name</Label>

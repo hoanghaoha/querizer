@@ -30,7 +30,7 @@ const Page = () => {
             <CardTitle>What do you want us to do?</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="flex flex-col gap-4" id="user-form" onSubmit={async (e) => {
+            <form className="flex flex-col gap-4" id="feedback-form" onSubmit={async (e) => {
               e.preventDefault()
               await feedback({ type, message })
             }}>
@@ -60,9 +60,9 @@ const Page = () => {
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2 items-end">
-            <Button type="submit" form="user-form" disabled={sending}>
-              {sending ? <IconLoader2 className="animate-spin" /> : ""}
-              Sending
+            <Button type="submit" form="feedback-form" disabled={sending}>
+              {sending && <IconLoader2 className="animate-spin" />}
+              {sending ? "Sending" : "Send"}
             </Button>
           </CardFooter>
         </Card>
