@@ -12,7 +12,7 @@ import { DATABASE_INDUSTRY, DATABASE_SIZE } from "@/lib/const"
 import { useState } from "react"
 import { useDatabaseGenerate } from "@/hooks/database"
 
-const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
+const GenerateDatabaseButton = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState<string | null>(null)
   const [industry, setIndustry] = useState<string | null>(null)
@@ -20,7 +20,7 @@ const GenerateDatabaseButton = ({ onClick }: { onClick?: () => void }) => {
   const [description, setDescription] = useState<string | null>(null)
   const { generate, generating } = useDatabaseGenerate(() => {
     setOpen(false)
-    onClick?.()
+    onSuccess?.()
   })
 
   const handleGenerate = async (e: React.SubmitEvent) => {
