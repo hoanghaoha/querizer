@@ -89,6 +89,29 @@ export type Challenge = {
   public: boolean
 }
 
+export type Tier = "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond" | "Master" | "Challenger"
+
+export type LevelCount = { level: string; count: number }
+
+export type IndependenceRate = { clean: number; hinted: number; peeked: number }
+
+export type ActivityDay = { date: string; count: number }
+
+export type Dashboard = {
+  total_score: number
+  tier: Tier
+  tier_min: number
+  tier_max: number | null
+  solved: number
+  attempted: number
+  solve_rate: number
+  current_streak: number
+  longest_streak: number
+  by_level: LevelCount[]
+  independence: IndependenceRate
+  activity: ActivityDay[]
+}
+
 export type FeedbackType = "general" | "features" | "bug"
 
 export type Feedback = {
