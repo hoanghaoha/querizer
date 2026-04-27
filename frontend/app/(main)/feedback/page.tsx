@@ -38,7 +38,7 @@ const Page = () => {
                 <Label>Type</Label>
                 <Select value={type} onValueChange={(e) => setType(e as FeedbackType)}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={type} />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -53,7 +53,7 @@ const Page = () => {
                 <Label htmlFor="message">Message</Label>
                 <Textarea
                   id="message"
-                  defaultValue={message}
+                  value={message}
                   onChange={e => setMessage(e.target.value)}
                 />
               </div>
