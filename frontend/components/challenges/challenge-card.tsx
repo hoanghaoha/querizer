@@ -5,12 +5,19 @@ import { Button } from "../ui/button"
 import ReactMarkdown from "react-markdown"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from "../ui/item"
-import { IconArrowRight, IconGlobe, IconLock, IconTrash } from "@tabler/icons-react"
+import { IconArrowRight, IconDots, IconGlobe, IconLock, IconTrash } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
 import { useRouter } from "next/navigation"
 import { useDatabase } from "@/hooks/database"
 import { useChallengeDelete, useChallengeUpdate } from "@/hooks/challenge"
 import { CHALLENGE_LEVEL, DATABASE_INDUSTRY } from "@/lib/const"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu"
 
 const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challenge, onDeleted?: () => void, onUpdated?: () => void }) => {
   const { database } = useDatabase(challenge.database_id)
@@ -26,14 +33,8 @@ const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challen
       <ItemContent>
         <ItemTitle>
           <HoverCard>
-            <HoverCardTrigger className="hover:underline flex items-center justify-start gap-2">
-              <p>{challenge.name.length > 50 ? challenge.name.slice(0, 40) + "..." : challenge.name}</p>
-              {industryIcon && (
-                <Badge variant="outline" className="gap-1">
-                  <industryIcon.icon className="size-3" />
-                  {database?.industry}
-                </Badge>
-              )}
+            <HoverCardTrigger className="hover:underline truncate max-w-[36ch]">
+              {challenge.name}
             </HoverCardTrigger>
             <HoverCardContent className="max-h-[50vh] overflow-y-auto border-primary border-2" align="start">
               <ReactMarkdown
@@ -49,38 +50,65 @@ const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challen
             </HoverCardContent>
           </HoverCard>
         </ItemTitle>
-        <ItemDescription className={`font-bold flex items-center gap-1 ${levelInfo?.color}`}>
-          {levelInfo && <levelInfo.icon className="size-4" />}
-          {challenge.level}
+
+        <ItemDescription className="flex items-center gap-1.5 mt-0.5">
+          {levelInfo && (
+            <Badge variant="outline" className={`gap-1 ${levelInfo.color} border-current/30`}>
+              <levelInfo.icon className="size-2.5" />
+              {challenge.level}
+            </Badge>
+          )}
+          {industryIcon && database && (
+            <Badge variant="outline" className="gap-1 text-muted-foreground">
+              <industryIcon.icon className="size-2.5" />
+              {database.industry}
+            </Badge>
+          )}
         </ItemDescription>
       </ItemContent>
 
       <ItemActions>
-        <Button
-          size="icon"
-          variant="outline"
-          disabled={updating}
-          title={challenge.public ? "Make private" : "Make public"}
-          onClick={async () => await update({ id: challenge.id, public: !challenge.public })}
-        >
-          {challenge.public
-            ? <IconGlobe className="size-4 text-emerald-300" />
-            : <IconLock className="size-4 text-muted-foreground" />
-          }
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <IconDots className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              disabled={updating}
+              onClick={async () => await update({ id: challenge.id, public: !challenge.public })}
+            >
+              {challenge.public
+                ? <><IconGlobe className="size-4 text-emerald-400" /> Make private</>
+                : <><IconLock className="size-4 text-muted-foreground" /> Make public</>
+              }
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              disabled={deleting}
+              className="text-destructive focus:text-destructive"
+              onClick={async () => await deleteChallenge({ id: challenge.id })}
+            >
+              <IconTrash className="size-4" /> Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Button size="icon" onClick={() => router.push(`/challenges/${challenge.id}`)}>
           <IconArrowRight />
         </Button>
-        <Button disabled={deleting} size="icon" variant="destructive" onClick={async () => await deleteChallenge({ id: challenge.id })}>
-          <IconTrash />
-        </Button>
       </ItemActions>
-      <ItemFooter className="flex flex-row items-center justify-between">
-        <div className="flex flex-row gap-2 flex-wrap">
+
+      <ItemFooter>
+        <div className="flex flex-row gap-1.5 flex-wrap">
           {challenge.topics.map((topic, i) => (
             <Badge key={i} variant="secondary">{topic}</Badge>
           ))}
         </div>
+        {database && (
+          <span className="text-xs text-muted-foreground shrink-0">{database.name}</span>
+        )}
       </ItemFooter>
     </Item>
   )

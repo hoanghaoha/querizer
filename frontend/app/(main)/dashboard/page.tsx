@@ -2,7 +2,7 @@
 
 import { useDashboard } from "@/hooks/dashboard"
 import { CHALLENGE_LEVEL, TIER_CONFIG } from "@/lib/const"
-import { Dashboard } from "@/lib/types"
+import { ActivityDay, Dashboard } from "@/lib/types"
 import { IconFlame } from "@tabler/icons-react"
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
 
@@ -164,7 +164,7 @@ function ActivityChart({ activity }: { activity: ActivityDay[] }) {
               borderRadius: "6px",
               fontSize: 12,
             }}
-            formatter={(value: number) => [value, "Solved"]}
+            formatter={(value) => [value, "Solved"]}
             labelFormatter={(label) => label}
           />
           <Area
