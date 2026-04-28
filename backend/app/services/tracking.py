@@ -1,7 +1,7 @@
+from typing import Any, cast
 import uuid
 from datetime import datetime, timezone
 
-from app.services._supabase import first
 from app.services._utils import now_iso
 from app.supabase import db
 
@@ -141,11 +141,11 @@ def _cycle_reset_at() -> str:
 def _increment_usage(user_id: str, **fields: int) -> None:
     now = datetime.now(timezone.utc)
 
-    usage_result = db.table("user_usages").select("*").eq("user_id", user_id).execute()
+    usages_result = db.table("user_usages").select("*").eq("user_id", user_id).execute()
 
-    if usage_result.data:
-        row = first(usage_result)
-        reset_at = datetime.fromisoformat(row["reset_at"])
+    if usages_result.data:
+        usage = cast(dict[str, Any], usages_result.data[0])
+        reset_at = datetime.fromisoformat(usage["reset_at"])
         if reset_at <= now:
             db.table("user_usages").update(
                 {
@@ -155,10 +155,10 @@ def _increment_usage(user_id: str, **fields: int) -> None:
                     "reset_at": _cycle_reset_at(),
                     **{k: v for k, v in fields.items()},
                 }
-            ).eq("id", row["id"]).execute()
+            ).eq("id", usage["id"]).execute()
         else:
-            updates = {k: (row.get(k) or 0) + v for k, v in fields.items()}
-            db.table("user_usages").update(updates).eq("id", row["id"]).execute()
+            updates = {k: (usage.get(k) or 0) + v for k, v in fields.items()}
+            db.table("user_usages").update(updates).eq("id", usage["id"]).execute()
     else:
         db.table("user_usages").insert(
             {
@@ -172,11 +172,16 @@ def _increment_usage(user_id: str, **fields: int) -> None:
 
 
 def _get_attempt(user_id: str, challenge_id: str) -> dict | None:
-    attempt_result = (
+    attempts_result = (
         db.table("challenge_attempts")
         .select("*")
         .eq("user_id", user_id)
         .eq("challenge_id", challenge_id)
         .execute()
     )
-    return first(attempt_result) if attempt_result.data else None
+
+    if attempts_result.data:
+        attempt = cast(dict[str, Any], attempts_result.data[0])
+    else:
+        attempt = None
+    return attempt

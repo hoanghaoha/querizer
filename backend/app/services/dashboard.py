@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from typing import Any, cast
 
 from app.schemas.dashboard import (
     ActivityDay,
@@ -6,7 +7,6 @@ from app.schemas.dashboard import (
     IndependenceRate,
     LevelCount,
 )
-from app.services._supabase import one
 from app.supabase import db
 
 TIERS = [
@@ -61,8 +61,10 @@ def get_dashboard(user_id: str) -> DashboardResponse:
     )
     attempts = result.data or []
 
-    total_score = sum(one(a)["score"] for a in attempts if one(a)["solved"])
-    solved_count = sum(1 for a in attempts if one(a)["solved"])
+    attempts = cast(list[dict[str, Any]], attempts)
+
+    total_score = sum(a["score"] for a in attempts if a["solved"])
+    solved_count = sum(1 for a in attempts if a["solved"])
     attempted_count = len(attempts)
     solve_rate = (
         round(solved_count / attempted_count * 100, 1) if attempted_count else 0.0
@@ -72,7 +74,6 @@ def get_dashboard(user_id: str) -> DashboardResponse:
 
     level_counts: dict[str, int] = {}
     for a in attempts:
-        a = one(a)
         if a["solved"] and a.get("challenges"):
             level = a["challenges"]["level"]
             level_counts[level] = level_counts.get(level, 0) + 1
@@ -84,19 +85,18 @@ def get_dashboard(user_id: str) -> DashboardResponse:
     clean = sum(
         1
         for a in attempts
-        if one(a)["solved"] and one(a)["n_hints"] == 0 and not one(a)["solution_used"]
+        if a["solved"] and a["n_hints"] == 0 and not a["solution_used"]
     )
     hinted = sum(
         1
         for a in attempts
-        if one(a)["solved"] and one(a)["n_hints"] > 0 and not one(a)["solution_used"]
+        if a["solved"] and a["n_hints"] > 0 and not a["solution_used"]
     )
-    peeked = sum(1 for a in attempts if one(a)["solved"] and one(a)["solution_used"])
+    peeked = sum(1 for a in attempts if a["solved"] and a["solution_used"])
 
     solved_dates: set[date] = set()
     activity_map: dict[date, int] = {}
     for a in attempts:
-        a = one(a)
         if a["solved"] and a.get("created_at"):
             d = datetime.fromisoformat(a["created_at"]).date()
             solved_dates.add(d)

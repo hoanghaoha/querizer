@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from app.auth import verify_token
 from app.schemas.database import (
     DatabaseGenerateRequest,
-    DatabaseGenerateResponse,
     DatabaseQueryRequest,
     DatabaseQueryResponse,
     DatabaseResponse,
@@ -24,7 +23,7 @@ router = APIRouter()
 @router.post("")
 async def generate_database_endpoint(
     body: DatabaseGenerateRequest, user_id: str = Depends(verify_token)
-) -> DatabaseGenerateResponse:
+) -> DatabaseResponse:
     return await generate_database(user_id, body)
 
 

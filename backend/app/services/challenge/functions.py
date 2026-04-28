@@ -1,4 +1,5 @@
 import logging
+from typing import Any, cast
 import uuid
 
 from fastapi import HTTPException
@@ -10,7 +11,6 @@ from app.schemas.challenge import (
     ChallengeSubmitResponse,
     ChallengeUpdateRequest,
 )
-from app.services._supabase import first, one, require_first, require_one
 from app.services._utils import now_iso
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
 from app.services.challenge._utils import ChallengeGenerator
@@ -32,16 +32,18 @@ async def generate_challenge(
     user_id: str, body: ChallengeGenerateRequest
 ) -> ChallengeResponse:
     check_quota(user_id, "challenge")
-    db_result = (
+    databases_result = (
         db.table("databases")
         .select("industry,db_schema")
         .eq("id", body.database_id)
         .eq("user_id", user_id)
-        .single()
         .execute()
     )
 
-    database = require_one(db_result, "Database")
+    if not databases_result:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    database = cast(dict[str, Any], databases_result.data[0])
 
     generator = ChallengeGenerator(
         industry=database["industry"],
@@ -55,7 +57,7 @@ async def generate_challenge(
     try:
         generated = await generator.generate()
 
-        insert_result = (
+        databases_result = (
             db.table("challenges")
             .insert(
                 {
@@ -74,9 +76,10 @@ async def generate_challenge(
             .execute()
         )
 
-        inserted = first(insert_result)
-        track_challenge_generated(user_id, inserted["id"])
-        return ChallengeResponse.model_validate(inserted)
+        database = cast(dict[str, Any], databases_result.data[0])
+
+        track_challenge_generated(user_id, database["id"])
+        return ChallengeResponse.model_validate(database)
 
     except HTTPException:
         raise
@@ -97,7 +100,10 @@ def get_challenges(
     )
     if database_id:
         query = query.eq("database_id", database_id)
-    list_result = query.execute()
+
+    challenges_result = query.execute()
+
+    challenges = cast(list[dict[str, Any]], challenges_result.data)
 
     return [
         ChallengeResponse.model_validate(
@@ -108,33 +114,44 @@ def get_challenges(
                 "database_industry": (row.get("databases") or {}).get("industry", ""),
             }
         )
-        for row in list_result.data
+        for row in challenges
     ]
 
 
 def get_challenge(challenge_id: str, user_id: str) -> ChallengeResponse:
-    get_result = (
+    challenge_result = (
         db.table("challenges")
         .select("*")
         .eq("id", challenge_id)
         .eq("user_id", user_id)
-        .single()
         .execute()
     )
-    return ChallengeResponse.model_validate(require_one(get_result, "Challenge"))
+
+    if not challenge_result.data:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+
+    challenge = cast(dict[str, Any], challenge_result.data[0])
+
+    return ChallengeResponse.model_validate(challenge)
 
 
 def update_challenge(
     challenge_id: str, user_id: str, body: ChallengeUpdateRequest
 ) -> ChallengeResponse:
-    update_result = (
+    challenges_result = (
         db.table("challenges")
         .update({"public": body.public})
         .eq("id", challenge_id)
         .eq("user_id", user_id)
         .execute()
     )
-    return ChallengeResponse.model_validate(require_first(update_result, "Challenge"))
+
+    if not challenges_result.data:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+
+    challenge = cast(dict[str, Any], challenges_result.data[0])
+
+    return ChallengeResponse.model_validate(challenge)
 
 
 def delete_challenge(challenge_id: str, user_id: str) -> None:

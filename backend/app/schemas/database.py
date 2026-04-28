@@ -46,10 +46,6 @@ class DatabaseGenerateRequest(BaseModel):
     description: str | None = None
 
 
-class DatabaseGenerateResponse(BaseModel):
-    id: str
-
-
 class DatabaseQueryRequest(BaseModel):
     dql: str
 

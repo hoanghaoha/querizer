@@ -1,9 +1,8 @@
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Any, Literal, cast
 
 from fastapi import HTTPException
 
-from app.services._supabase import first, one
 from app.supabase import db
 
 PLAN_LIMITS: dict[str, dict[str, int | None]] = {
@@ -28,8 +27,9 @@ ACTION_LABEL: dict[QuotaAction, str] = {
 
 
 def check_quota(user_id: str, action: QuotaAction) -> None:
-    user_result = db.table("users").select("plan").eq("id", user_id).single().execute()
-    plan: str = one(user_result)["plan"] if user_result.data else "Free"
+    users_result = db.table("users").select("plan").eq("id", user_id).execute()
+    user = cast(dict[str, Any], users_result.data[0])
+    plan: str = user["plan"] if users_result.data else "Free"
     limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["Free"])[action]
 
     if limit is None:
@@ -46,13 +46,14 @@ def check_quota(user_id: str, action: QuotaAction) -> None:
     if not usage_result.data:
         return
 
-    row = first(usage_result)
-    reset_at = datetime.fromisoformat(row["reset_at"])
+    usage = cast(dict[str, Any], usage_result.data[0])
+
+    reset_at = datetime.fromisoformat(usage["reset_at"])
 
     if reset_at <= now:
         return
 
-    used: int = row.get(ACTION_FIELD[action]) or 0
+    used: int = usage.get(ACTION_FIELD[action]) or 0
     if used >= limit:
         raise HTTPException(
             status_code=429,

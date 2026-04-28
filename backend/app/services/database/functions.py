@@ -2,15 +2,14 @@ import logging
 import os
 import sqlite3
 import tempfile
+from typing import Any, cast
 from fastapi import HTTPException
 from app.schemas.database import (
     DatabaseGenerateRequest,
-    DatabaseGenerateResponse,
     DatabaseQueryResponse,
     DatabaseResponse,
     DatabaseUpdateRequest,
 )
-from app.services._supabase import require_one
 from app.services._utils import now_iso
 from app.services.database._utils import DatabaseGenerator
 from app.services.quota import check_quota
@@ -25,7 +24,7 @@ BUCKET = "databases"
 
 async def generate_database(
     user_id: str, body: DatabaseGenerateRequest
-) -> DatabaseGenerateResponse:
+) -> DatabaseResponse:
     check_quota(user_id, "db")
     _ensure_bucket()
     os.makedirs(settings.databases_path, exist_ok=True)
@@ -40,23 +39,32 @@ async def generate_database(
         _upload_file(generator.db_path, storage_path)
         uploaded = True
 
-        db.table("databases").insert(
-            {
-                "id": generator.database_id,
-                "user_id": user_id,
-                "name": generator.name,
-                "industry": generator.industry,
-                "description": generator.description,
-                "size": generator.size,
-                "row_count": generator.row_count,
-                "db_schema": generator.schema,
-                "db_path": storage_path,
-                "created_at": now_iso(),
-            }
-        ).execute()
+        databases_result = (
+            db.table("databases")
+            .insert(
+                {
+                    "id": generator.database_id,
+                    "user_id": user_id,
+                    "name": generator.name,
+                    "industry": generator.industry,
+                    "description": generator.description,
+                    "size": generator.size,
+                    "row_count": generator.row_count,
+                    "db_schema": generator.schema,
+                    "db_path": storage_path,
+                    "created_at": now_iso(),
+                }
+            )
+            .execute()
+        )
 
-        track_db_generated(user_id, generator.database_id)
-        return DatabaseGenerateResponse.model_validate({"id": generator.database_id})
+        if not databases_result.data:
+            raise HTTPException(status_code=404, detail="Database not found")
+
+        database = cast(dict[str, Any], databases_result.data[0])
+
+        track_db_generated(user_id, database["id"])
+        return DatabaseResponse.model_validate(database)
 
     except HTTPException:
         raise
@@ -67,9 +75,7 @@ async def generate_database(
             except Exception:
                 pass
         logger.exception("database generation failed")
-        raise HTTPException(
-            status_code=500, detail="Database generation failed"
-        ) from e
+        raise HTTPException(status_code=500, detail="Database generation failed") from e
 
     finally:
         if os.path.exists(generator.db_path):
@@ -77,38 +83,37 @@ async def generate_database(
 
 
 def get_databases(user_id: str) -> list[DatabaseResponse]:
-    list_result = db.table("databases").select("*").eq("user_id", user_id).execute()
-    return [DatabaseResponse.model_validate(row) for row in list_result.data]
+    databases_result = (
+        db.table("databases").select("*").eq("user_id", user_id).execute()
+    )
+    return [DatabaseResponse.model_validate(row) for row in databases_result.data]
 
 
 def get_database(database_id: str, user_id: str) -> DatabaseResponse:
-    get_result = (
+    databases_result = (
         db.table("databases")
         .select("*")
         .eq("user_id", user_id)
         .eq("id", database_id)
-        .single()
         .execute()
     )
-    return DatabaseResponse.model_validate(require_one(get_result, "Database"))
+
+    if not databases_result.data:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    database = cast(dict[str, Any], databases_result.data[0])
+
+    return DatabaseResponse.model_validate(database)
 
 
 def update_database(
     database_id: str, user_id: str, body: DatabaseUpdateRequest
 ) -> DatabaseResponse:
-    existing_result = (
-        db.table("databases")
-        .select("id")
-        .eq("id", database_id)
-        .eq("user_id", user_id)
-        .single()
-        .execute()
-    )
-    require_one(existing_result, "Database")
+    assert get_database(database_id, user_id)
 
     updates = body.model_dump(exclude_none=True)
 
-    update_result = (
+    databases_result = (
         db.table("databases")
         .update(updates)
         .eq("id", database_id)
@@ -116,25 +121,22 @@ def update_database(
         .execute()
     )
 
-    return DatabaseResponse.model_validate(update_result.data[0])
+    if not databases_result.data:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    database = cast(dict[str, Any], databases_result.data[0])
+
+    return DatabaseResponse.model_validate(database)
 
 
 def delete_database(database_id: str, user_id: str) -> None:
-    select_result = (
-        db.table("databases")
-        .select("id, db_path")
-        .eq("id", database_id)
-        .eq("user_id", user_id)
-        .single()
-        .execute()
-    )
-    row = require_one(select_result, "Database")
+    database = get_database(database_id, user_id)
 
     db.table("databases").delete().eq("id", database_id).eq(
         "user_id", user_id
     ).execute()
 
-    db.storage.from_(BUCKET).remove([row["db_path"]])
+    db.storage.from_(BUCKET).remove([database.db_path])
 
 
 def query_database(db_path: str, dql: str) -> DatabaseQueryResponse:
@@ -193,6 +195,4 @@ def _upload_file(local_path: str, storage_path: str) -> None:
             )
     except Exception as e:
         logger.exception("cannot upload to storage")
-        raise HTTPException(
-            status_code=503, detail="Cannot upload to storage"
-        ) from e
+        raise HTTPException(status_code=503, detail="Cannot upload to storage") from e
