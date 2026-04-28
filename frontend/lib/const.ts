@@ -1,6 +1,6 @@
 import { IconBolt, IconBrandShopee, IconBuildingBank, IconBuildingFactory, IconBuildingSkyscraper, IconChartBar, IconCircle, IconCircleFilled, IconCircleHalf, IconCoin, IconCrown, IconDashboard, IconDatabase, IconDeviceLaptop, IconDeviceTv, IconDiamond, IconDots, IconFlame, IconHeartbeat, IconInfinity, IconLeaf, IconMedal, IconMedal2, IconMoodSmile, IconPlane, IconSchool, IconSend2, IconShare, IconShieldFilled, IconShoppingCart, IconSkull, IconSparkles2, IconSword, IconSwords, IconToolsKitchen2, IconTreadmill, IconTrophy, IconTruck, IconUserCircle, IconUsers } from "@tabler/icons-react"
 import type { Icon } from "@tabler/icons-react"
-import type { Tier } from "./types"
+import type { Tier, UserPlan } from "./types"
 
 export const NAV_DATA = {
   workspace: [
@@ -85,13 +85,13 @@ export const CHALLENGE_LEVEL = [
 ]
 
 export const TIER_CONFIG: Record<Tier, { icon: Icon; color: string; barColor: string }> = {
-  Bronze:     { icon: IconMedal,       color: "text-amber-700",  barColor: "bg-amber-700"  },
-  Silver:     { icon: IconMedal2,      color: "text-slate-400",  barColor: "bg-slate-400"  },
-  Gold:       { icon: IconTrophy,      color: "text-yellow-400", barColor: "bg-yellow-400" },
-  Platinum:   { icon: IconShieldFilled,color: "text-cyan-400",   barColor: "bg-cyan-400"   },
-  Diamond:    { icon: IconDiamond,     color: "text-blue-400",   barColor: "bg-blue-400"   },
-  Master:     { icon: IconCrown,       color: "text-purple-500", barColor: "bg-purple-500" },
-  Challenger: { icon: IconSwords,      color: "text-red-500",    barColor: "bg-red-500"    },
+  Bronze: { icon: IconMedal, color: "text-amber-700", barColor: "bg-amber-700" },
+  Silver: { icon: IconMedal2, color: "text-slate-400", barColor: "bg-slate-400" },
+  Gold: { icon: IconTrophy, color: "text-yellow-400", barColor: "bg-yellow-400" },
+  Platinum: { icon: IconShieldFilled, color: "text-cyan-400", barColor: "bg-cyan-400" },
+  Diamond: { icon: IconDiamond, color: "text-blue-400", barColor: "bg-blue-400" },
+  Master: { icon: IconCrown, color: "text-purple-500", barColor: "bg-purple-500" },
+  Challenger: { icon: IconSwords, color: "text-red-500", barColor: "bg-red-500" },
 }
 
 export const PLANS = [
@@ -99,10 +99,7 @@ export const PLANS = [
     title: "Free",
     tagline: "Try the platform",
     price: 0,
-    accent: "text-muted-foreground",
-    accentBg: "",
-    accentBorder: "",
-    highlight: false,
+    icon: IconBolt,
     features: [
       { label: "Databases", value: "2 / month" },
       { label: "Challenges", value: "10 / month" },
@@ -113,10 +110,7 @@ export const PLANS = [
     title: "Pro",
     tagline: "For serious learners",
     price: 9,
-    accent: "text-emerald-400",
-    accentBg: "bg-emerald-500/5",
-    accentBorder: "border-emerald-400/40",
-    highlight: true,
+    icon: IconFlame,
     features: [
       { label: "Databases", value: "10 / month" },
       { label: "Challenges", value: "30 / month" },
@@ -127,10 +121,7 @@ export const PLANS = [
     title: "Max",
     tagline: "No limits, full power",
     price: 29,
-    accent: "text-violet-400",
-    accentBg: "bg-violet-500/5",
-    accentBorder: "border-violet-400/40",
-    highlight: false,
+    icon: IconInfinity,
     features: [
       { label: "Databases", value: "Unlimited" },
       { label: "Challenges", value: "Unlimited" },

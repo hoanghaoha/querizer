@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { usePortal } from "@/hooks/polar"
 import { useUser, useUserUpdate } from "@/hooks/user"
-import { IconLoader2, IconSparkles } from "@tabler/icons-react"
-import { useRouter } from "next/navigation"
+import { IconCreditCard, IconLoader2, IconSparkles } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
 
 const Page = () => {
@@ -20,7 +20,7 @@ const Page = () => {
   const [name, setName] = useState(user?.name)
   const [expertise, setExpertise] = useState(user?.expertise)
   const [sqlLevel, setSqlLevel] = useState(user?.sql_level)
-  const router = useRouter()
+  const { openPortal, loading } = usePortal()
 
   useEffect(() => {
     setName(user?.name)
@@ -32,9 +32,12 @@ const Page = () => {
     <div className="flex flex-col gap-10 px-20 pt-10 w-[60%] mx-auto">
       <div className="flex justify-between items-center">
         <p className="font-bold text-xl">Account Settings</p>
-        <Button>
-          <IconSparkles className="text-emerald-600 animate-pulse" onClick={() => router.push("/plan")} />
-          Upgrade Plan
+        <Button onClick={async () => await openPortal()}>
+          {loading ?
+            <IconLoader2 className="animate-spin" /> :
+            <IconCreditCard />
+          }
+          Manage Subscriptions
         </Button>
       </div>
       <div className="w-full">

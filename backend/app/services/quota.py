@@ -3,6 +3,7 @@ from typing import Any, Literal, cast
 
 from fastapi import HTTPException
 
+from app.schemas.user import UserPlan, UserPlanStatus
 from app.supabase import db
 
 PLAN_LIMITS: dict[str, dict[str, int | None]] = {
@@ -27,15 +28,35 @@ ACTION_LABEL: dict[QuotaAction, str] = {
 
 
 def check_quota(user_id: str, action: QuotaAction) -> None:
-    users_result = db.table("users").select("plan").eq("id", user_id).execute()
-    user = cast(dict[str, Any], users_result.data[0])
-    plan: str = user["plan"] if users_result.data else "Free"
+    users_result = (
+        db.table("users")
+        .select("plan,plan_status,plan_expires_at")
+        .eq("id", user_id)
+        .execute()
+    )
+    user = cast(dict[str, Any], users_result.data[0]) if users_result.data else {}
+    raw_plan: str = user["plan"]
+    now = datetime.now(timezone.utc)
+
+    if raw_plan != UserPlan.FREE:
+        status = user.get("plan_status")
+        expires_at = user.get("plan_expires_at")
+        if status == UserPlanStatus.ACTIVE:
+            plan = raw_plan
+        elif status == UserPlanStatus.CANCELED and expires_at:
+            plan = (
+                raw_plan if datetime.fromisoformat(expires_at) > now else UserPlan.FREE
+            )
+        else:
+            plan = UserPlan.FREE
+    else:
+        plan = UserPlan.FREE
+
     limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["Free"])[action]
 
     if limit is None:
         return
 
-    now = datetime.now(timezone.utc)
     usage_result = (
         db.table("user_usages")
         .select(f"reset_at,{ACTION_FIELD[action]}")

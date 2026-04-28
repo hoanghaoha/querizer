@@ -14,6 +14,11 @@ class UserPlan(str, Enum):
     MAX = "Max"
 
 
+class UserPlanStatus(str, Enum):
+    ACTIVE = "active"
+    CANCELED = "canceled"
+
+
 class UserSqlLevel(str, Enum):
     BEGINNER = "Beginner"
     INTERMEDIATE = "Intermediate"
@@ -25,6 +30,9 @@ class UserUpdateRequest(BaseModel):
     expertise: str | None = None
     sql_level: UserSqlLevel | None = None
     plan: UserPlan | None = None
+    plan_status: UserPlanStatus | None = None
+    plan_expires_at: str | None = None
+    polar_customer_id: str | None = None
 
 
 class UserResponse(BaseModel):
