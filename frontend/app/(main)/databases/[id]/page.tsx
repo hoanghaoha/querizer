@@ -21,13 +21,13 @@ const Page = () => {
         <TabsTrigger value="editor">SQL Editor</TabsTrigger>
         <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
-      <TabsContent value="schema" className="flex-1 overflow-y-auto min-h-0">
+      <TabsContent forceMount value="schema" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <DatabaseSchemaVisualizer {...database} />
       </TabsContent>
-      <TabsContent value="editor" className="flex-1 overflow-y-auto min-h-0">
+      <TabsContent forceMount value="editor" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <SqlEditor database={database} />
       </TabsContent>
-      <TabsContent value="settings" className="flex-1 overflow-y-auto min-h-0">
+      <TabsContent forceMount value="settings" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <DatabaseSettings {...database} />
       </TabsContent>
     </Tabs>

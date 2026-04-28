@@ -23,13 +23,13 @@ const Page = () => {
         <TabsTrigger value="schema">Schema</TabsTrigger>
         <TabsTrigger value="editor">Assignment</TabsTrigger>
       </TabsList>
-      <TabsContent value="topic" className="flex-1 overflow-y-auto min-h-0">
+      <TabsContent forceMount value="topic" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <ChallengeContent challenge={challenge} />
       </TabsContent>
-      <TabsContent value="schema" className="flex-1 overflow-y-auto min-h-0">
+      <TabsContent forceMount value="schema" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <DatabaseSchemaVisualizer {...database} />
       </TabsContent>
-      <TabsContent value="editor" className="flex-1 overflow-y-auto min-h-0">
+      <TabsContent forceMount value="editor" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <SqlEditor database={database} challenge={challenge} />
       </TabsContent>
     </Tabs>
