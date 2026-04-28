@@ -28,7 +28,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               open &&
               <Link className="px-2" href="/">
-                <p className="text-lg font-bold">Querizer</p>
+                <p className="text-lg font-bold">querizer</p>
               </Link>
             }
             <SidebarTrigger size={"lg"} />
