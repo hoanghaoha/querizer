@@ -6,6 +6,7 @@ from app.schemas.dashboard import (
     IndependenceRate,
     LevelCount,
 )
+from app.services._supabase import one
 from app.supabase import db
 
 TIERS = [
@@ -60,27 +61,42 @@ def get_dashboard(user_id: str) -> DashboardResponse:
     )
     attempts = result.data or []
 
-    total_score = sum(a["score"] for a in attempts if a["solved"])
-    solved_count = sum(1 for a in attempts if a["solved"])
+    total_score = sum(one(a)["score"] for a in attempts if one(a)["solved"])
+    solved_count = sum(1 for a in attempts if one(a)["solved"])
     attempted_count = len(attempts)
-    solve_rate = round(solved_count / attempted_count * 100, 1) if attempted_count else 0.0
+    solve_rate = (
+        round(solved_count / attempted_count * 100, 1) if attempted_count else 0.0
+    )
 
     tier, tier_min, tier_max = _get_tier(total_score)
 
     level_counts: dict[str, int] = {}
     for a in attempts:
+        a = one(a)
         if a["solved"] and a.get("challenges"):
             level = a["challenges"]["level"]
             level_counts[level] = level_counts.get(level, 0) + 1
-    by_level = [LevelCount(level=l, count=level_counts.get(l, 0)) for l in LEVEL_ORDER]
+    by_level = [
+        LevelCount(level=level, count=level_counts.get(level, 0))
+        for level in LEVEL_ORDER
+    ]
 
-    clean = sum(1 for a in attempts if a["solved"] and a["n_hints"] == 0 and not a["solution_used"])
-    hinted = sum(1 for a in attempts if a["solved"] and a["n_hints"] > 0 and not a["solution_used"])
-    peeked = sum(1 for a in attempts if a["solved"] and a["solution_used"])
+    clean = sum(
+        1
+        for a in attempts
+        if one(a)["solved"] and one(a)["n_hints"] == 0 and not one(a)["solution_used"]
+    )
+    hinted = sum(
+        1
+        for a in attempts
+        if one(a)["solved"] and one(a)["n_hints"] > 0 and not one(a)["solution_used"]
+    )
+    peeked = sum(1 for a in attempts if one(a)["solved"] and one(a)["solution_used"])
 
     solved_dates: set[date] = set()
     activity_map: dict[date, int] = {}
     for a in attempts:
+        a = one(a)
         if a["solved"] and a.get("created_at"):
             d = datetime.fromisoformat(a["created_at"]).date()
             solved_dates.add(d)
@@ -90,7 +106,10 @@ def get_dashboard(user_id: str) -> DashboardResponse:
 
     today = date.today()
     activity = [
-        ActivityDay(date=str(today - timedelta(days=83 - i)), count=activity_map.get(today - timedelta(days=83 - i), 0))
+        ActivityDay(
+            date=str(today - timedelta(days=83 - i)),
+            count=activity_map.get(today - timedelta(days=83 - i), 0),
+        )
         for i in range(84)
     ]
 

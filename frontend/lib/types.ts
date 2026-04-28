@@ -8,6 +8,7 @@ export type User = {
   avatar_url?: string
   expertise?: string
   sql_level: string
+  created_at: string
 }
 
 export type DatabaseIndustry =
@@ -87,6 +88,10 @@ export type Challenge = {
   topics: string[]
   solution: string
   public: boolean
+  created_at: string
+  solved: boolean
+  database_name: string
+  database_industry: string
 }
 
 export type Tier = "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond" | "Master" | "Challenger"
@@ -117,4 +122,5 @@ export type FeedbackType = "general" | "features" | "bug"
 export type Feedback = {
   type: FeedbackType
   message: string
+  created_at: string
 }

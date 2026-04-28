@@ -7,7 +7,6 @@ import { useChallenges } from "@/hooks/challenge"
 import { useDatabases } from "@/hooks/database"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CHALLENGE_LEVEL } from "@/lib/const"
 import type { ChallengeLevel } from "@/lib/types"
 
 const LEVEL_ORDER: ChallengeLevel[] = ["Beginner", "Easy", "Medium", "Hard", "Hell"]
@@ -17,7 +16,7 @@ const Page = () => {
   const { databases } = useDatabases()
   const [search, setSearch] = useState("")
   const [databaseId, setDatabaseId] = useState<string | "all">("all")
-  const [sort, setSort] = useState<"name-asc" | "name-desc" | "level-asc" | "level-desc">("level-asc")
+  const [sort, setSort] = useState<"newest" | "oldest" | "name-asc" | "name-desc" | "level-asc" | "level-desc">("newest")
 
   const filtered = useMemo(() => {
     if (!challenges) return []
@@ -29,6 +28,8 @@ const Page = () => {
         return matchSearch && matchDatabase
       })
       .sort((a, b) => {
+        if (sort === "newest") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        if (sort === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         if (sort === "name-asc") return a.name.localeCompare(b.name)
         if (sort === "name-desc") return b.name.localeCompare(a.name)
         if (sort === "level-asc") return LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level)
@@ -37,44 +38,47 @@ const Page = () => {
   }, [challenges, search, databaseId, sort])
 
   return (
-    <div className="flex flex-col gap-8 pt-10 mx-auto w-[60%]">
-      <div className="flex justify-between items-center">
-        <p className="font-bold text-xl">My Challenges</p>
-        <GenerateChallengeButton onSuccess={refresh} />
-      </div>
+    <div className="flex flex-col gap-8 py-10 mx-auto w-[60%] h-screen">
+      <div className="flex flex-col gap-8 shrink-0">
+        <div className="flex justify-between items-center">
+          <p className="font-bold text-xl">My Challenges</p>
+          <GenerateChallengeButton onSuccess={refresh} />
+        </div>
 
-      <div className="flex gap-2">
-        <Input
-          placeholder="Search challenges..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="flex-1"
-        />
-        <Select value={databaseId} onValueChange={setDatabaseId}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Database" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Databases</SelectItem>
-            {databases?.map(db => (
-              <SelectItem key={db.id} value={db.id}>{db.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={v => setSort(v as typeof sort)}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="level-asc">Easiest first</SelectItem>
-            <SelectItem value="level-desc">Hardest first</SelectItem>
-            <SelectItem value="name-asc">Name A→Z</SelectItem>
-            <SelectItem value="name-desc">Name Z→A</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Search challenges..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="flex-1"
+          />
+          <Select value={databaseId} onValueChange={setDatabaseId}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="Database" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Databases</SelectItem>
+              {databases?.map(db => (
+                <SelectItem key={db.id} value={db.id}>{db.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={v => setSort(v as typeof sort)}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value="level-asc">Easiest first</SelectItem>
+              <SelectItem value="level-desc">Hardest first</SelectItem>
+              <SelectItem value="name-asc">Name A→Z</SelectItem>
+              <SelectItem value="name-desc">Name Z→A</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
         {filtered.map(challenge => (
           <ChallengeCard
             key={challenge.id}

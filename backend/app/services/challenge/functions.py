@@ -10,7 +10,7 @@ from app.schemas.challenge import (
     ChallengeSubmitResponse,
     ChallengeUpdateRequest,
 )
-from app.services._supabase import first, require_first, require_one
+from app.services._supabase import first, one, require_first, require_one
 from app.services._utils import now_iso
 from app.services.challenge.prompt import HINT_PROMPT, build_hint_prompt
 from app.services.challenge._utils import ChallengeGenerator
@@ -90,11 +90,26 @@ async def generate_challenge(
 def get_challenges(
     user_id: str, database_id: str | None = None
 ) -> list[ChallengeResponse]:
-    query = db.table("challenges").select("*").eq("user_id", user_id)
+    query = (
+        db.table("challenges")
+        .select("*,databases(name,industry),challenge_attempts(solved)")
+        .eq("user_id", user_id)
+    )
     if database_id:
         query = query.eq("database_id", database_id)
     list_result = query.execute()
-    return [ChallengeResponse.model_validate(row) for row in list_result.data]
+
+    return [
+        ChallengeResponse.model_validate(
+            {
+                **row,
+                "solved": any(a["solved"] for a in row.get("challenge_attempts", [])),
+                "database_name": (row.get("databases") or {}).get("name", ""),
+                "database_industry": (row.get("databases") or {}).get("industry", ""),
+            }
+        )
+        for row in list_result.data
+    ]
 
 
 def get_challenge(challenge_id: str, user_id: str) -> ChallengeResponse:

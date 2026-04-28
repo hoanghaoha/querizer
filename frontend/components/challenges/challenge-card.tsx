@@ -5,10 +5,9 @@ import { Button } from "../ui/button"
 import ReactMarkdown from "react-markdown"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from "../ui/item"
-import { IconArrowRight, IconDots, IconGlobe, IconLock, IconTrash } from "@tabler/icons-react"
+import { IconArrowRight, IconCircleCheckFilled, IconDots, IconGlobe, IconLock, IconTrash } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
 import { useRouter } from "next/navigation"
-import { useDatabase } from "@/hooks/database"
 import { useChallengeDelete, useChallengeUpdate } from "@/hooks/challenge"
 import { CHALLENGE_LEVEL, DATABASE_INDUSTRY } from "@/lib/const"
 import {
@@ -20,12 +19,11 @@ import {
 } from "../ui/dropdown-menu"
 
 const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challenge, onDeleted?: () => void, onUpdated?: () => void }) => {
-  const { database } = useDatabase(challenge.database_id)
   const { update, updating } = useChallengeUpdate(onUpdated)
   const { deleteChallenge, deleting } = useChallengeDelete(onDeleted)
   const router = useRouter()
 
-  const industryIcon = DATABASE_INDUSTRY.find(i => i.title === database?.industry)
+  const industryIcon = DATABASE_INDUSTRY.find(i => i.title === challenge.database_industry)
   const levelInfo = CHALLENGE_LEVEL.find(l => l.title === challenge.level)
 
   return (
@@ -33,7 +31,8 @@ const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challen
       <ItemContent>
         <ItemTitle>
           <HoverCard>
-            <HoverCardTrigger className="hover:underline truncate max-w-[36ch]">
+            <HoverCardTrigger className="hover:underline truncate max-w-[36ch] flex items-center gap-1.5">
+              {challenge.solved && <IconCircleCheckFilled className="size-4 text-emerald-400 shrink-0" />}
               {challenge.name}
             </HoverCardTrigger>
             <HoverCardContent className="max-h-[50vh] overflow-y-auto border-primary border-2" align="start">
@@ -58,10 +57,10 @@ const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challen
               {challenge.level}
             </Badge>
           )}
-          {industryIcon && database && (
+          {industryIcon && challenge.database_industry && (
             <Badge variant="outline" className="gap-1 text-muted-foreground">
               <industryIcon.icon className="size-2.5" />
-              {database.industry}
+              {challenge.database_industry}
             </Badge>
           )}
         </ItemDescription>
@@ -106,9 +105,10 @@ const ChallengeCard = ({ challenge, onDeleted, onUpdated }: { challenge: Challen
             <Badge key={i} variant="secondary">{topic}</Badge>
           ))}
         </div>
-        {database && (
-          <span className="text-xs text-muted-foreground shrink-0">{database.name}</span>
-        )}
+        <span className="text-xs text-muted-foreground shrink-0">
+          {challenge.database_name ? `${challenge.database_name} · ` : ""}
+          {new Date(challenge.created_at).toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}
+        </span>
       </ItemFooter>
     </Item>
   )

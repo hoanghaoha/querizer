@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api"
 import { supabase } from "@/lib/supabase"
-import { Feedback, User } from "@/lib/types"
+import { Feedback, FeedbackType, User } from "@/lib/types"
 import { useCallback, useEffect, useState } from "react"
 import type { User as AuthUser } from '@supabase/supabase-js'
 import { toast } from "sonner"
@@ -86,7 +86,7 @@ export function useUserUpdate(onSuccess?: () => void) {
 export function useFeedback(onSuccess?: () => void) {
   const [sending, setSending] = useState(false)
 
-  const feedback = async ({ type, message }: Feedback) => {
+  const feedback = async ({ type, message }: { type: FeedbackType, message: string }) => {
     setSending(true)
     try {
       await api("/feedback", {

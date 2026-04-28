@@ -35,6 +35,9 @@ class ChallengeResponse(BaseModel):
     solution: str
     public: bool
     created_at: str
+    solved: bool = False
+    database_name: str = ""
+    database_industry: str = ""
 
 
 class ChallengeSubmitRequest(BaseModel):

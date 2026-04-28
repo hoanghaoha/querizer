@@ -35,55 +35,57 @@ const Page = () => {
   }, [databases, search, industry, size, sort])
 
   return (
-    <div className="flex flex-col gap-8 pt-10 mx-auto w-[60%]">
-      <div className="flex justify-between items-center">
-        <p className="font-bold text-xl">My Databases</p>
-        <GenerateDatabaseButton onSuccess={refresh} />
+    <div className="flex flex-col gap-8 py-10 mx-auto w-[60%] h-screen">
+      <div className="flex flex-col gap-8 shrink-0">
+        <div className="flex justify-between items-center">
+          <p className="font-bold text-xl">My Databases</p>
+          <GenerateDatabaseButton onSuccess={refresh} />
+        </div>
+
+        <div className="flex gap-2">
+          <Input
+            placeholder="Search databases..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="flex-1"
+          />
+          <Select value={industry} onValueChange={v => setIndustry(v as DatabaseIndustry | "all")}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Industry" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Industries</SelectItem>
+              {DATABASE_INDUSTRY.map(i => (
+                <SelectItem key={i.title} value={i.title}>{i.title}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={size} onValueChange={v => setSize(v as DatabaseSize | "all")}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sizes</SelectItem>
+              {DATABASE_SIZE.map(s => (
+                <SelectItem key={s.title} value={s.title}>{s.title}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={v => setSort(v as typeof sort)}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value="name-asc">Name A→Z</SelectItem>
+              <SelectItem value="name-desc">Name Z→A</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        <Input
-          placeholder="Search databases..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="flex-1"
-        />
-        <Select value={industry} onValueChange={v => setIndustry(v as DatabaseIndustry | "all")}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Industry" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Industries</SelectItem>
-            {DATABASE_INDUSTRY.map(i => (
-              <SelectItem key={i.title} value={i.title}>{i.title}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={size} onValueChange={v => setSize(v as DatabaseSize | "all")}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Size" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sizes</SelectItem>
-            {DATABASE_SIZE.map(s => (
-              <SelectItem key={s.title} value={s.title}>{s.title}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={v => setSort(v as typeof sort)}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="oldest">Oldest</SelectItem>
-            <SelectItem value="name-asc">Name A→Z</SelectItem>
-            <SelectItem value="name-desc">Name Z→A</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto pb-10">
         {filtered.map(database => (
           <DatabaseCard key={database.id} {...database} />
         ))}

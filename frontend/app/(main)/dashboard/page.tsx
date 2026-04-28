@@ -195,15 +195,17 @@ const Page = () => {
   if (!dashboard) return null
 
   return (
-    <div className="flex flex-col gap-6 pt-10 pb-10 mx-auto w-[60%]">
-      <p className="font-bold text-xl">Dashboard</p>
-      <TierCard dashboard={dashboard} />
-      <KpiStrip dashboard={dashboard} />
-      <div className="grid grid-cols-2 gap-4">
-        <ByLevel dashboard={dashboard} />
-        <IndependenceCard dashboard={dashboard} />
+    <div className="flex flex-col gap-6 py-10 mx-auto w-[60%] h-screen">
+      <p className="font-bold text-xl shrink-0">Dashboard</p>
+      <div className="flex flex-col gap-6 flex-1 overflow-y-auto">
+        <TierCard dashboard={dashboard} />
+        <KpiStrip dashboard={dashboard} />
+        <div className="grid grid-cols-2 gap-4">
+          <ByLevel dashboard={dashboard} />
+          <IndependenceCard dashboard={dashboard} />
+        </div>
+        <ActivityChart activity={dashboard.activity} />
       </div>
-      <ActivityChart activity={dashboard.activity} />
     </div>
   )
 }
