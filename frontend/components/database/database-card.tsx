@@ -8,7 +8,7 @@ const DatabaseCard = (database: Database) => {
   const IndustryIcon = DATABASE_INDUSTRY.find(i => i.title == database.industry)?.icon
 
   return (
-    <Link href={`/databases/${database.id}`} className="flex flex-col justify-between">
+    <Link href={`/databases/${database.id}`} className="flex flex-col justify-between h-min">
       <Card className="hover:border hover:border-foreground transition-colors cursor-pointer h-full flex flex-col">
         <CardHeader>
           <CardTitle>{database.name}</CardTitle>
