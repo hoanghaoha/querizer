@@ -37,7 +37,7 @@ export function useCheckout() {
           success_url: `${process.env.NEXT_PUBLIC_APP_URL}/plan`,
         }),
       }) as { url: string }
-      window.location.href = url
+      window.open(url, "_blank", "noopener,noreferrer")
     } catch (e) {
       toast.error(errorMessage(e, "Failed to start checkout"))
     } finally {

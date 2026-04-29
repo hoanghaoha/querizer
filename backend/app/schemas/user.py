@@ -39,7 +39,11 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str | None = None
-    plan: UserPlan
     avatar_url: str | None = None
     expertise: str | None = None
     sql_level: str | None = None
+    plan: UserPlan
+    plan_status: UserPlanStatus
+    plan_expires_at: str | None = None
+    polar_customer_id: str | None = None
+    created_at: str

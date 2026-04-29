@@ -47,10 +47,12 @@ def create_checkout(user_id: str, plan: str, success_url: str) -> str:
 def handle_polar_event(payload: dict[str, Any]) -> None:
     event_type = payload.get("type")
     data = payload.get("data", {})
-    user_id = data["metadata"]["user_id"]
-    polar_customer_id = data["customer_id"]
-    plan = data["product"]["name"]
-    plan_expires_at = data["current_period_end"]
+    user_id = data.get("metadata", {}).get("user_id")
+    if not user_id:
+        return
+    polar_customer_id = data.get("customer_id")
+    plan = data.get("product", {}).get("name")
+    plan_expires_at = data.get("current_period_end")
 
     if event_type == "subscription.created":
         update_user(

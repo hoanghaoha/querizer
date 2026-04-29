@@ -1,4 +1,5 @@
 from typing import Any, cast
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from app.auth import verify_token
 from app.schemas.polar import CheckoutRequest, CheckoutResponse, PortalResponse
@@ -59,4 +60,7 @@ async def polar_webhook(
     if not valid:
         raise HTTPException(status_code=403, detail="Invalid signature")
 
-    handle_polar_event(json.loads(body))
+    try:
+        handle_polar_event(json.loads(body))
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="Database unavailable, retry later")

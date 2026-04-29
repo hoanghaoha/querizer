@@ -101,9 +101,7 @@ def get_database(database_id: str, user_id: str) -> DatabaseResponse:
     if not databases_result.data:
         raise HTTPException(status_code=404, detail="Database not found")
 
-    database = cast(dict[str, Any], databases_result.data[0])
-
-    return DatabaseResponse.model_validate(database)
+    return DatabaseResponse.model_validate(databases_result.data[0])
 
 
 def update_database(
@@ -124,9 +122,7 @@ def update_database(
     if not databases_result.data:
         raise HTTPException(status_code=404, detail="Database not found")
 
-    database = cast(dict[str, Any], databases_result.data[0])
-
-    return DatabaseResponse.model_validate(database)
+    return DatabaseResponse.model_validate(databases_result.data[0])
 
 
 def delete_database(database_id: str, user_id: str) -> None:

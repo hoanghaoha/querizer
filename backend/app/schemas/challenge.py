@@ -34,10 +34,10 @@ class ChallengeResponse(BaseModel):
     level: ChallengeLevel
     solution: str
     public: bool
-    created_at: str
     solved: bool = False
     database_name: str = ""
     database_industry: str = ""
+    created_at: str
 
 
 class ChallengeSubmitRequest(BaseModel):
