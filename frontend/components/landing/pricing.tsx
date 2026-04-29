@@ -1,7 +1,9 @@
 import { PLANS } from "@/lib/const"
-import { IconArrowRight, IconCheck, IconInfinity } from "@tabler/icons-react"
+import { IconArrowRight, IconCheck } from "@tabler/icons-react"
 import Link from "next/link"
 import { Button } from "../ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
+import { Separator } from "../ui/separator"
 
 const Pricing = () => {
   return (
@@ -15,62 +17,35 @@ const Pricing = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {PLANS.map(plan => (
-            <div
-              key={plan.title}
-              className={`relative flex flex-col rounded-2xl border p-7 gap-7 transition-colors
-                ${plan.highlight ? `${plan.accentBg} ${plan.accentBorder}` : "border-border bg-card"}`}
-            >
-              {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-400 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-background">
-                  Most Popular
-                </div>
-              )}
-
-              <div className="flex flex-col gap-1">
-                <span className={`text-base font-semibold ${plan.accent}`}>{plan.title}</span>
-                <p className="text-xs text-muted-foreground">{plan.tagline}</p>
-              </div>
-
-              <div className="flex items-baseline gap-1">
-                {plan.price === 0 ? (
-                  <span className="text-4xl font-bold tracking-tight">Free</span>
-                ) : (
-                  <>
-                    <span className="text-4xl font-bold tracking-tight tabular-nums">${plan.price}</span>
-                    <span className="text-sm text-muted-foreground">/month</span>
-                  </>
-                )}
-              </div>
-
-              <ul className="flex flex-col gap-3 border-t border-border pt-6">
-                {plan.features.map(f => (
-                  <li key={f.label} className="flex items-center gap-3 text-sm">
-                    <IconCheck className={`size-4 shrink-0 ${plan.accent}`} />
-                    <span>{f.label}</span>
-                    <span className={`ml-auto font-semibold tabular-nums ${f.value === "Unlimited" ? plan.accent : "text-muted-foreground"}`}>
-                      {f.value === "Unlimited" ? <IconInfinity className="size-4" /> : f.value}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-auto pt-2">
-                <Button
-                  className={`w-full ${plan.title === "Max"
-                    ? "bg-violet-500 hover:bg-violet-600 text-white"
-                    : plan.title === "Pro"
-                      ? "bg-emerald-400 hover:bg-emerald-500 text-background"
-                      : ""}`}
-                  variant={plan.title === "Free" ? "outline" : "default"}
-                  asChild
-                >
+            <Card key={plan.title} className="w-full rounded-2xl border">
+              <CardHeader>
+                <CardTitle className="text-lg flex gap-2">
+                  <plan.icon />
+                  {plan.title}
+                </CardTitle>
+                <CardDescription>{plan.tagline}</CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 flex flex-col gap-2">
+                <p className="text-4xl font-semibold">
+                  {plan.price === 0 ? "Free" : `$${plan.price}`}
+                </p>
+                <Button size="lg" asChild>
                   <Link href="/signin">
                     {plan.price === 0 ? "Get started free" : `Get ${plan.title}`}
                     <IconArrowRight className="size-3.5" />
                   </Link>
                 </Button>
-              </div>
-            </div>
+              </CardContent>
+              <Separator />
+              <CardFooter className="flex flex-col gap-4 items-start p-4">
+                {plan.features.map(feature => (
+                  <div key={feature.label} className="flex gap-2 items-center">
+                    <IconCheck size={10} />
+                    <p>{feature.label} - {feature.value}</p>
+                  </div>
+                ))}
+              </CardFooter>
+            </Card>
           ))}
         </div>
 
