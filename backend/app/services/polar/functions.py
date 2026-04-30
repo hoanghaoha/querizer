@@ -5,7 +5,7 @@ from app.config import settings
 from app.schemas.user import UserPlan, UserPlanStatus, UserUpdateRequest
 from app.services.user import update_user
 
-POLAR_API = "https://api.polar.sh/v1"
+POLAR_API = settings.polar_api_url
 
 
 def get_portal_url(polar_customer_id: str) -> str:
@@ -81,6 +81,16 @@ def handle_polar_event(payload: dict[str, Any]) -> None:
             UserUpdateRequest(
                 plan=plan,
                 plan_status=UserPlanStatus.CANCELED,
+                plan_expires_at=plan_expires_at,
+            ),
+        )
+
+    elif event_type == "subscription.updated":
+        update_user(
+            user_id,
+            UserUpdateRequest(
+                plan=plan,
+                plan_status=UserPlanStatus.ACTIVE,
                 plan_expires_at=plan_expires_at,
             ),
         )

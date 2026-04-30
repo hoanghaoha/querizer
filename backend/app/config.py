@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     polar_access_token: str = ""
     polar_product_pro_id: str = ""
     polar_product_max_id: str = ""
+    polar_api_url: str = "https://api.polar.sh/v1"
 
     class Config:
         env_file = ".env"
