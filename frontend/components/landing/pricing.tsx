@@ -27,7 +27,7 @@ const Pricing = () => {
               </CardHeader>
               <CardContent className="p-4 flex flex-col gap-2">
                 <p className="text-4xl font-semibold">
-                  {plan.price === 0 ? "Free" : `$${plan.price}`}
+                  $ {plan.price}<span className="text-sm text-muted-foreground">/ month</span>
                 </p>
                 <Button size="lg" asChild>
                   <Link href="/signin">

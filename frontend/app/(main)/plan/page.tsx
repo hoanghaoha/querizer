@@ -33,7 +33,7 @@ const Page = () => {
                   <CardDescription>{plan.tagline}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-4 flex flex-col gap-2">
-                  <p className="text-4xl font-semibold">$ {plan.price}</p>
+                  <p className="text-4xl font-semibold">$ {plan.price}<span className="text-sm text-muted-foreground">/ month</span></p>
                   <Button size="lg" disabled={activePlan} onClick={action}>
                     {loading ? <IconLoader2 className="animate-spin" /> : null}
                     {activePlan ? "Active Plan" : `Get ${plan.title}`}
