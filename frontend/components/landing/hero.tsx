@@ -10,6 +10,9 @@ const Hero = () => {
           Learn SQL.<br />
           <span className="text-emerald-400">Actually enjoy it.</span>
         </h1>
+        {/* <h1> */}
+        {/*   Repositing: SQL practice playground with unque customized challenges */}
+        {/* </h1> */}
         <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto">
           Generate a database. Get challenges built around it. Practice on problems no one's posted answers to.
         </p>
