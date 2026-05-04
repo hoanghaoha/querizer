@@ -2,6 +2,7 @@ from typing import Any
 import uuid
 import random
 import sqlite3
+import time
 
 import anthropic
 import numpy as np
@@ -84,10 +85,16 @@ class DatabaseGenerator:
         3. Create tables and insert synthetic data.
         """
         self.conn = sqlite3.connect(self.db_path)
+
+        t0 = time.perf_counter()
         schema = await self.get_schema()
+        print(f"[timer] schema generation: {time.perf_counter() - t0:.2f}s")
+
         try:
+            t1 = time.perf_counter()
             self._create_tables(schema)
             self._insert_tables_data(schema)
+            print(f"[timer] data generation: {time.perf_counter() - t1:.2f}s")
             self.conn.commit()
             self.schema = schema
 
@@ -109,9 +116,15 @@ class DatabaseGenerator:
     async def _generate_schema(self) -> dict:
         """Call the Anthropic API to generate a schema for the given industry and description."""
         message = await client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-haiku-4-5",
             max_tokens=8192,
-            system=SYSTEM_PROMPT,
+            system=[
+                {
+                    "type": "text",
+                    "text": SYSTEM_PROMPT,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             messages=[
                 {
                     "role": "user",

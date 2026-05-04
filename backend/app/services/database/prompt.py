@@ -190,16 +190,16 @@ You MUST follow the structure and patterns in the example below.
 def build_user_prompt(industry: str, description: str, size: str) -> str:
     SIZE_PROFILES = {
         "small": {
-            "description": "3–4 tables, 1–2 foreign key relationships, minimal nullable columns, simple enums",
-            "row_guidance": "main table 200–400 rows, lookup tables 5–20 rows",
+            "description": "2–3 tables, 1–2 foreign key relationships, minimal nullable columns, simple enums, 4–5 columns per table",
+            "row_guidance": "main table 100–200 rows, lookup tables 5–20 rows",
         },
         "medium": {
-            "description": "5–6 tables, 3–4 foreign key relationships, at least one junction/bridge table, moderate nullable columns, richer enums",
-            "row_guidance": "main table 800–1500 rows, dimension tables 50–200 rows, junction table 2000–5000 rows",
+            "description": "3–4 tables, 2–3 foreign key relationships, moderate nullable columns, richer enums, 5–6 columns per table",
+            "row_guidance": "main table 300–500 rows, dimension tables 20–100 rows",
         },
         "large": {
-            "description": "7–9 tables, multiple fact tables, many foreign key relationships, complex enums with 5+ values, many nullable columns with varied null rates",
-            "row_guidance": "main fact table 4000–8000 rows, secondary fact tables 1000–3000 rows, dimension tables 100–500 rows",
+            "description": "5–6 tables, multiple foreign key relationships, complex enums with 4+ values, varied null rates, 5–7 columns per table",
+            "row_guidance": "main fact table 1000–2000 rows, secondary tables 200–500 rows, dimension tables 50–100 rows",
         },
     }
     profile = SIZE_PROFILES.get(size, SIZE_PROFILES["medium"])

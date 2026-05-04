@@ -34,15 +34,26 @@ class ChallengeGenerator:
         self.max_retries = max_retries
 
     async def generate(self) -> dict:
+        import time
+        t0 = time.perf_counter()
         await self.generate_topic()
+        print(f"[timer] topic generation: {time.perf_counter() - t0:.2f}s")
+
+        t1 = time.perf_counter()
         solution = await self.generate_solution()
-        return await self.review_solution(solution)
+        print(f"[timer] solution generation: {time.perf_counter() - t1:.2f}s")
+
+        t2 = time.perf_counter()
+        result = await self.review_solution(solution)
+        print(f"[timer] review: {time.perf_counter() - t2:.2f}s")
+
+        return result
 
     async def generate_topic(self):
         message = await client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-haiku-4-5",
             max_tokens=2048,
-            system=TOPIC_PROMPT,
+            system=[{"type": "text", "text": TOPIC_PROMPT, "cache_control": {"type": "ephemeral"}}],
             messages=[
                 {
                     "role": "user",
@@ -65,7 +76,7 @@ class ChallengeGenerator:
         message = await client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=2048,
-            system=SOLUTION_PROMPT,
+            system=[{"type": "text", "text": SOLUTION_PROMPT, "cache_control": {"type": "ephemeral"}}],
             messages=[
                 {
                     "role": "user",

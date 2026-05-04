@@ -142,6 +142,18 @@ Example response:
 """
 
 
+def _slim_schema(schema: dict) -> dict:
+    """Strip generator details — keep only structure needed for challenge writing."""
+    slim_tables = []
+    for table in schema.get("tables", []):
+        slim_cols = [
+            {k: v for k, v in col.items() if k in ("name", "type", "nullable", "primary_key", "unique")}
+            for col in table.get("columns", [])
+        ]
+        slim_tables.append({"name": table["name"], "columns": slim_cols})
+    return {"tables": slim_tables}
+
+
 def build_generate_topic_prompt(
     industry: str,
     schema: dict,
@@ -149,7 +161,7 @@ def build_generate_topic_prompt(
     level: str,
     context: str | None,
 ) -> str:
-    schema_text = json.dumps(schema, indent=2)
+    schema_text = json.dumps(_slim_schema(schema), indent=2)
     extra = f"\n\n## Additional Instructions\n{context}" if context else ""
     return f"""## Challenge Parameters
 - Industry: {industry}
