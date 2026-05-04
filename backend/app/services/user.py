@@ -26,12 +26,13 @@ def _downgrade_if_expired(user: dict[str, Any]) -> dict[str, Any]:
     return {**user, "plan": UserPlan.FREE}
 
 
-def get_or_create_user(user_id: str, body: UserRequest) -> UserResponse:
+def get_or_create_user(user_id: str, body: UserRequest) -> tuple[UserResponse, bool]:
+    """Returns (user, is_new)."""
     users_result = db.table("users").select("*").eq("id", user_id).execute()
 
     if users_result.data:
         user = _downgrade_if_expired(cast(dict[str, Any], users_result.data[0]))
-        return UserResponse.model_validate(user)
+        return UserResponse.model_validate(user), False
 
     users_result = (
         db.table("users")
@@ -53,7 +54,7 @@ def get_or_create_user(user_id: str, body: UserRequest) -> UserResponse:
         .execute()
     )
 
-    return UserResponse.model_validate(users_result.data[0])
+    return UserResponse.model_validate(users_result.data[0]), True
 
 
 def update_user(user_id: str, body: UserUpdateRequest) -> UserResponse:

@@ -40,7 +40,7 @@ async def generate_challenge(
         .execute()
     )
 
-    if not databases_result:
+    if not databases_result.data:
         raise HTTPException(status_code=404, detail="Database not found")
 
     database = cast(dict[str, Any], databases_result.data[0])

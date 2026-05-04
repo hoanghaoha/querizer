@@ -12,28 +12,37 @@ import { Input } from "../ui/input"
 import { ChallengeLevel } from "@/lib/types"
 import { useDatabases } from "@/hooks/database"
 import { useChallengeGenerate } from "@/hooks/challenge"
+import { useUser } from "@/hooks/user"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
-const GenerateChallengeButton = ({ onSuccess }: { onSuccess?: () => void }) => {
+const GenerateChallengeButton = ({ onSuccess, children }: { onSuccess?: () => void; children?: React.ReactNode }) => {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [databaseId, setDatabaseId] = useState<string | null>(null)
   const [level, setLevel] = useState<ChallengeLevel>("Easy")
   const [topics, setTopics] = useState<string | null>(null)
   const [context, setContext] = useState<string | null>(null)
 
-  const { databases } = useDatabases()
-  const { generate, generating } = useChallengeGenerate(() => {
-    onSuccess?.()
-    setOpen(false)
-  })
+  const { databases, loading: loadingDatabases, refresh: refreshDatabases } = useDatabases()
+  const { user } = useUser()
+  const isNewUser = user ? Date.now() - new Date(user.created_at).getTime() < 2 * 60 * 1000 : false
+  const { generate, generating } = useChallengeGenerate()
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next)
+    if (next) refreshDatabases()
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button>
-          <IconPlus />
-          Generate Challenge
-        </Button>
+        {children ?? (
+          <Button>
+            <IconPlus />
+            Generate Challenge
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -46,26 +55,39 @@ const GenerateChallengeButton = ({ onSuccess }: { onSuccess?: () => void }) => {
         </DialogHeader>
         <form id="generate-challenge-form" onSubmit={async (e) => {
           e.preventDefault()
-          await generate({ database_id: databaseId!, level: level!, topics: topics || "Any topics", context: context || "" })
+          const challenge = await generate({ database_id: databaseId!, level: level!, topics: topics || "Any topics", context: context || "" })
+          if (challenge) {
+            onSuccess?.()
+            setOpen(false)
+            router.push(`/challenges/${challenge.id}`)
+          }
         }}>
           <FieldGroup>
             <Field>
               <Label>Database</Label>
-              <Select value={databaseId || ""} onValueChange={setDatabaseId} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select database" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Database</SelectLabel>
-                    {databases?.map(database => (
-                      <SelectItem key={database.id} value={database.id}>
-                        {database.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              {loadingDatabases ? (
+                <p className="text-sm text-muted-foreground">Loading databases...</p>
+              ) : !databases?.length ? (
+                <p className="text-sm text-muted-foreground">
+                  {isNewUser ? "Your starter database is being prepared. Try again in a moment." : (<>No databases yet. <button type="button" className="underline" onClick={() => { setOpen(false); router.push("/databases") }}>Create one</button> to get started.</>)}
+                </p>
+              ) : (
+                <Select value={databaseId || ""} onValueChange={setDatabaseId} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select database" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Database</SelectLabel>
+                      {databases.map(database => (
+                        <SelectItem key={database.id} value={database.id}>
+                          {database.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
             </Field>
             <Field>
               <Label htmlFor="industry">Level</Label>

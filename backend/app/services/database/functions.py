@@ -8,6 +8,7 @@ from app.schemas.database import (
     DatabaseGenerateRequest,
     DatabaseQueryResponse,
     DatabaseResponse,
+    DatabaseSize,
     DatabaseUpdateRequest,
 )
 from app.services._utils import now_iso
@@ -80,6 +81,63 @@ async def generate_database(
     finally:
         if os.path.exists(generator.db_path):
             os.remove(generator.db_path)
+
+
+async def generate_starter_database(user_id: str) -> None:
+    """Fire-and-forget: generate a default sample database for a new user."""
+    print(f"[starter] starting for user {user_id}")
+    request = DatabaseGenerateRequest(
+        name="Starter",
+        industry="E-commerce",
+        size=DatabaseSize.SMALL,
+        description="A sample online store with customers, orders, and products",
+    )
+    generator = None
+    uploaded = False
+    try:
+        _ensure_bucket()
+        os.makedirs(settings.databases_path, exist_ok=True)
+        generator = DatabaseGenerator(request)
+
+        print("[starter] generating schema + data")
+        await generator.generate()
+        print("[starter] generation done, uploading")
+
+        storage_path = f"{user_id}/{generator.database_id}"
+        _upload_file(generator.db_path, storage_path)
+        uploaded = True
+        print("[starter] uploaded, inserting db record")
+
+        db.table("databases").insert(
+            {
+                "id": generator.database_id,
+                "user_id": user_id,
+                "name": generator.name,
+                "industry": generator.industry,
+                "description": generator.description,
+                "size": generator.size,
+                "row_count": generator.row_count,
+                "db_schema": generator.schema,
+                "db_path": storage_path,
+                "created_at": now_iso(),
+            }
+        ).execute()
+        print(f"[starter] done for user {user_id}")
+
+    except Exception:
+        if uploaded and generator:
+            try:
+                db.storage.from_(BUCKET).remove([f"{user_id}/{generator.database_id}"])
+            except Exception:
+                pass
+        logger.exception("starter database generation failed for user %s", user_id)
+        print(f"[starter] FAILED for user {user_id}")
+    finally:
+        try:
+            if os.path.exists(generator.db_path):
+                os.remove(generator.db_path)
+        except Exception:
+            pass
 
 
 def get_databases(user_id: str) -> list[DatabaseResponse]:
