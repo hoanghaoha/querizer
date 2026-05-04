@@ -197,7 +197,7 @@ const Page = () => {
   return (
     <div className="flex flex-col gap-6 py-10 mx-auto w-[60%] h-screen">
       <p className="font-bold text-xl shrink-0">Dashboard</p>
-      <div className="flex flex-col gap-6 flex-1 overflow-y-auto">
+      <div className="flex flex-col gap-6 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <TierCard dashboard={dashboard} />
         <KpiStrip dashboard={dashboard} />
         <div className="grid grid-cols-2 gap-4">
