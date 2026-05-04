@@ -5,6 +5,7 @@ import { CHALLENGE_LEVEL, TIER_CONFIG } from "@/lib/const"
 import { ActivityDay, Dashboard } from "@/lib/types"
 import { IconFlame } from "@tabler/icons-react"
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
+import GenerateChallengeButton from "@/components/challenges/challenge-generate-button"
 
 
 function TierCard({ dashboard }: { dashboard: Dashboard }) {
@@ -196,7 +197,10 @@ const Page = () => {
 
   return (
     <div className="flex flex-col gap-6 py-10 mx-auto w-[60%] h-screen">
-      <p className="font-bold text-xl shrink-0">Dashboard</p>
+      <div className="flex items-center justify-between shrink-0">
+        <p className="font-bold text-xl">Dashboard</p>
+        {dashboard.solved === 0 && <GenerateChallengeButton />}
+      </div>
       <div className="flex flex-col gap-6 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <TierCard dashboard={dashboard} />
         <KpiStrip dashboard={dashboard} />
