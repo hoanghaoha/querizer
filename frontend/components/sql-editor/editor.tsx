@@ -75,8 +75,13 @@ const SqlEditor = ({ database, challenge }: { database: Database; challenge?: Ch
       <CodeMirror
         value={dql}
         onChange={setDql}
-        extensions={[sql()]}
         theme={oneDark}
+        extensions={[sql({
+          schema: Object.fromEntries(
+            database.db_schema.tables.map(t => [t.name, t.columns.map(c => c.name)])
+          ),
+          tables: database.db_schema.tables.map(t => ({ label: t.name, type: "type" })),
+        })]}
         basicSetup={{ lineNumbers: true, foldGutter: false }}
         className="flex-1 text-sm overflow-y-auto"
       />
