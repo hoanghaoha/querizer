@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDatabase } from "@/hooks/database"
 import { useParams } from "next/navigation"
 import PageLoading from "@/components/page-loading"
+import { IconEdit, IconSchema, IconSettings2 } from "@tabler/icons-react"
 
 const Page = () => {
   const { id } = useParams<{ id: string }>()
@@ -17,9 +18,18 @@ const Page = () => {
   return (
     <Tabs defaultValue="schema" className="h-dvh flex flex-col gap-0">
       <TabsList variant={"line"} className="shrink-0">
-        <TabsTrigger value="schema">Schema</TabsTrigger>
-        <TabsTrigger value="editor">SQL Editor</TabsTrigger>
-        <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsTrigger value="schema">
+          <IconSchema />
+          Schema
+        </TabsTrigger>
+        <TabsTrigger value="editor">
+          <IconEdit />
+          SQL Editor
+        </TabsTrigger>
+        <TabsTrigger value="settings">
+          <IconSettings2 />
+          Settings
+        </TabsTrigger>
       </TabsList>
       <TabsContent forceMount value="schema" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <DatabaseSchemaVisualizer {...database} />

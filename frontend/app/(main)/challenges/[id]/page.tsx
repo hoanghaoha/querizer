@@ -8,6 +8,7 @@ import { useParams } from "next/navigation"
 import SqlEditor from "@/components/sql-editor/editor"
 import PageLoading from "@/components/page-loading"
 import ChallengeContent from "@/components/challenges/challenge-content"
+import { IconCode, IconSchema, IconTicTac } from "@tabler/icons-react"
 
 const Page = () => {
   const { id } = useParams<{ id: string }>()
@@ -19,9 +20,18 @@ const Page = () => {
   return (
     <Tabs defaultValue="topic" className="h-dvh flex flex-col gap-0">
       <TabsList variant={"line"} className="shrink-0">
-        <TabsTrigger value="topic">Topic</TabsTrigger>
-        <TabsTrigger value="schema">Schema</TabsTrigger>
-        <TabsTrigger value="editor">Assignment</TabsTrigger>
+        <TabsTrigger value="topic">
+          <IconTicTac />
+          Topic
+        </TabsTrigger>
+        <TabsTrigger value="schema">
+          <IconSchema />
+          Schema
+        </TabsTrigger>
+        <TabsTrigger value="editor">
+          <IconCode />
+          Assignment
+        </TabsTrigger>
       </TabsList>
       <TabsContent forceMount value="topic" className="flex-1 overflow-y-auto min-h-0 data-[state=inactive]:hidden">
         <ChallengeContent challenge={challenge} />
